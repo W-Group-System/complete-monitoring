@@ -29,7 +29,11 @@ class TokenAuthenticate
                 }
             }
             
-            return redirect('http://localhost/sourcing_plan/public/login')->with('error', 'Unauthorized access');
+            if (app()->environment('local')) {
+                return redirect('http://localhost/sourcing_plan/public/login')->with('error', 'Unauthorized access');
+            } else {
+                return redirect(url('/login'))->with('error', 'Unauthorized access');
+            }
         }
 
         return $next($request);

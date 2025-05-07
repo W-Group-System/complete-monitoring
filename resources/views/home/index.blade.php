@@ -197,11 +197,6 @@
                                                 <td>
                                                     {{ $MDeductionKg > 0 ? number_format($MDeductionKg,2) : '-' }}
 
-                                                    {{-- @if ($grpo->apInvoices->isNotEmpty())
-                                                        {{ number_format($McDeductionKg, 2) }}
-                                                    @else
-                                                        No AP Invoice found
-                                                    @endif --}}
                                                 </td>
                                                 <td> 
                                                     @foreach ($grpo->apInvoices as $invoice)
@@ -211,41 +206,10 @@
                                                     @endforeach 
                                                 </td>
                                                 <td>
-                                                    {{-- {@foreach($grpo->truckingPoInvoice as $truckPO)
-                                                        {{ $truckPO }}
-                                                    @endforeach} --}}
                                                     {{ number_format(($totalFreightPo + $totalTruckingPo) / $ArrivalWt, 2) }}
-                                                    
-
-                                                    {{-- {{ $grpo->freightPoInvoice->freightPoLines->Price }} --}}
-                                                    {{-- @foreach (  $grpo->freightPoInvoice as $freights)
-                                                    @foreach ($freights->FreightLines as $freightLine)
-                                                        {{ $freights }}
-                                                    @endforeach
-                                                       
-                                                    @endforeach --}}
-                                                
                                                 </td>
                                                 <th>{{number_format(($grpo->grpoLines->first()->Price - max($McDeductionPhp, 0) ) + (($totalFreightPo + $totalTruckingPo) / $ArrivalWt),2)}}
-                                                    {{-- {{ $McDeductionPhp }} --}}
                                                 </th>
-                                                {{-- @foreach ($grpo->apInvoices as $invoice)
-                                                        <td>
-                                                            @if ($invoice->creditNotes->isNotEmpty())
-                                                                @foreach ($invoice->creditNotes as $creditNote)
-                                                                    {{ $creditNote->DocNum }} <br>
-                                                                @endforeach
-                                                            @else
-                                                                N/A 
-                                                            @endif
-                                                        </td>
-                                                @endforeach --}}
-                                                
-
-                                                {{-- <td></td> --}}
-                                                {{-- <td></td> --}}
-                                                {{-- <td></td> --}}
-                                                {{-- <td></td> --}}
                                                 <td>{{ optional($grpo->qualityResult)->U_OCULARMC }}</td>
                                                 <td>{{ optional($grpo->qualityResult)->U_MOIST }}</td>
                                                 <td>{{ optional($grpo->qualityResult)->U_LABYIELD }}</td>
@@ -279,7 +243,6 @@
                                                         } else {
                                                             $totalAmount += $paymentMapping->SumApplied;
                                                         }
-                                                        // $FinalPayment += $paymentMapping->SumApplied;
                                                     @endphp
                                                     @endforeach
                                                 @endforeach
@@ -288,16 +251,6 @@
                                                 @endphp
                                                 <td>
                                                     {{ number_format($FinalPayment,2) }}
-                                                    {{-- @foreach($grpo->apInvoices->unique('DocEntry') as $invoice)
-                                                        @foreach($invoice->paymentMappings as $paymentMapping)  
-{{ $paymentMapping }}
-                                                            @if($paymentMapping->payment && $paymentMapping->payment->paymentLines->count())  
-                                                                @foreach($paymentMapping->payment->paymentLines as $line)  
-                                                                   
-                                                                @endforeach
-                                                            @endif
-                                                        @endforeach
-                                                    @endforeach --}}
                                                 </td>
                                                 <td>
                                                     @foreach($grpo->apInvoices->unique('DocEntry') as $invoice)

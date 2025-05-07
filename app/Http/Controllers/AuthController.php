@@ -18,17 +18,15 @@ class AuthController extends Controller
             return redirect('/login')->with('error', 'Token is required.');
         }
 
-        // Find user with this token
         $user = User::where('api_token', $token)->first();
 
         if (!$user) {
             return redirect('/login')->with('error', 'Invalid token.');
         }
 
-        // Log in the user
         Auth::login($user);
 
-        return redirect('/home'); // Redirect to System 2 home
+        return redirect('/home');
     }
 
 

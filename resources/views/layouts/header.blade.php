@@ -72,7 +72,12 @@
                     </div>
                     <ul class="nav navbar-top-links navbar-right">
                         <li>
-                            <a href="login.html">
+                            <a href="#" onclick="redirectToSystem1()">
+                                <span class="m-r-sm text-muted welcome-message">Menu</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('logout') }}">
                                 <i class="fa fa-sign-out"></i> Log out
                             </a>
                         </li>
@@ -198,6 +203,16 @@
         });
 
         $('.chosen-select').chosen({width: "100%"});
+
+        function redirectToSystem1() {
+            const token = sessionStorage.getItem('api_token');
+            
+            if (token) {
+                window.location.href = `http://localhost/sourcing_plan/public/go-to-menu`;
+            } else {
+                window.location.href = `http://localhost/sourcing_plan/public/login`;
+            }
+        }
     </script>
 </body>
 </html>
