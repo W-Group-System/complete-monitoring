@@ -27,7 +27,7 @@
         <div class="col-lg-12">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
-                    <h5>Spinossum Summary</h5>
+                    <h5>Spinosum Summary</h5>
                 </div>
                 <div class="ibox-content">
                     <div class="wrapper wrapper-content animated fadeIn">
@@ -48,7 +48,7 @@
                                                 {{ $month }}
                                             </th>
                                             @endforeach
-                                            <th class="text-center text-success">Total Cottoni</th> 
+                                            <th class="text-center text-success">Total Spinosum</th> 
                                         </tr>
                                         <tr>
                                             <th>Supplier</th>
@@ -56,7 +56,7 @@
                                             @foreach ($months as $month)
                                                 <th class="text-center">Del Price</th>
                                                 <th class="text-center">Buying Price</th>
-                                                <th class="text-center">Cottoni</th>
+                                                <th class="text-center">Spinosum</th>
                                             @endforeach
                                             <th></th>
                                         </tr>
@@ -237,7 +237,7 @@
                                             <th></th>
                                             <th>DEL PRICE</th>
                                             <th>BUYING PRICE</th>
-                                            <th>Spinossum</th>
+                                            <th>Cottoni</th>
                                             <th></th>
                                         </tr>
                                     </thead>
@@ -301,9 +301,184 @@
                 </div>
             </div>
         </div>
-       
+        
+        <div class="col-lg-6">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Per Supplier </h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="wrapper wrapper-content animated fadeIn">
+                        <div class="row">
+                            <div style="max-width: 500px; width: 100%; margin: auto;">
+                                <canvas id="supplierCottoniPie"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Per Area </h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="wrapper wrapper-content animated fadeIn">
+                        <div class="row">
+                            <div style="max-width: 500px; width: 100%; margin: auto;">
+                                <canvas id="areaCottoniPie"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
+<script>
+    const pieLabels = [];
+    const pieData = [];
+
+    const areaCottoni = {};
+
+    @foreach ($suppliers as $supplier)
+        @php
+            $totalCottoni = 0;
+            foreach ($months as $month) {
+                $monthNum = date('m', strtotime($month));
+                $grpos = $supplier->opdn->filter(function($grpo) use ($monthNum) {
+                    $docDate = \Carbon\Carbon::parse($grpo->DocDate);
+                    $firstLine = $grpo->grpoLines->first();
+                    return $docDate->format('m') == $monthNum && optional($firstLine)->ItemCode === 'SWDSPIPHIL';
+                });
+
+                foreach ($grpos as $grpo) {
+                    foreach ($grpo->grpoLines as $line) {
+                        $totalCottoni += $line->Quantity;
+                    }
+                }
+            }
+        @endphp
+
+        @if ($totalCottoni > 0)
+            pieLabels.push("{{ $supplier->CardName }}");
+            pieData.push({{ $totalCottoni }});
+
+            @php
+                $area = $supplier->OriginGroup;  
+            @endphp
+            if (!areaCottoni["{{ $area }}"]) {
+                areaCottoni["{{ $area }}"] = 0;
+            }
+            areaCottoni["{{ $area }}"] += {{ $totalCottoni }};
+        @endif
+    @endforeach
+
+    const pieColors = pieLabels.map(() =>
+        `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`
+    );
+
+    const pieConfig = {
+        type: 'pie',
+        data: {
+            labels: pieLabels,
+            datasets: [{
+                label: 'Total Cottoni (kg) per Supplier',
+                data: pieData,
+                backgroundColor: pieColors,
+                borderColor: 'white',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                },
+                title: {
+                    display: true,
+                    text: 'Total Cottoni per Supplier (Annual)'
+                },
+                datalabels: {
+                    formatter: (value, context) => {
+                        const label = context.chart.data.labels[context.dataIndex];
+                        const data = context.chart.data.datasets[0].data;
+                        const total = data.reduce((sum, val) => sum + val, 0);
+                        const percentage = (value / total * 100).toFixed(1);
+                        return `${label}\n${percentage}%`;
+                    },
+                    color: '#fff',
+                    font: {
+                        weight: 'bold',
+                        size: 12
+                    },
+                    align: 'center',
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    };
+
+    new Chart(document.getElementById('supplierCottoniPie'), pieConfig);
+
+    const areaLabels = Object.keys(areaCottoni);
+    const areaData = Object.values(areaCottoni);
+
+    const areaColors = areaLabels.map(() =>
+        `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`
+    );
+
+    const pieConfigByArea = {
+        type: 'pie',
+        data: {
+            labels: areaLabels,
+            datasets: [{
+                label: 'Total Cottoni (kg) by Area',
+                data: areaData,
+                backgroundColor: areaColors,
+                borderColor: 'white',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                },
+                title: {
+                    display: true,
+                    text: 'Total Cottoni per Area (Annual)'
+                },
+                datalabels: {
+                    formatter: (value, context) => {
+                        const label = context.chart.data.labels[context.dataIndex];
+                        const data = context.chart.data.datasets[0].data;
+                        const total = data.reduce((sum, val) => sum + val, 0);
+                        const percentage = (value / total * 100).toFixed(1);
+                        return `${label}\n${percentage}%`;
+                    },
+                    color: '#fff',
+                    font: {
+                        weight: 'bold',
+                        size: 12
+                    },
+                    align: 'center',
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    };
+
+    new Chart(document.getElementById('areaCottoniPie'), pieConfigByArea);
+</script>
 @endsection
 

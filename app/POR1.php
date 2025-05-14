@@ -14,4 +14,10 @@ class POR1 extends Model
         return $this->hasMany(PDN1::class, 'BaseEntry', 'DocEntry')
             ->whereColumn('BaseLine', 'LineNum'); 
     }
+
+    public function header()
+    {
+        return $this->belongsTo(ODPO::class, 'DocEntry', 'DocEntry');
+    }
+
 }

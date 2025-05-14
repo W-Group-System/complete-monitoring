@@ -52,6 +52,24 @@ class OPDN extends Model
      {
         return $this->hasMany(DPO1::class, 'BaseEntry', 'DocEntry');
      }
+
+     public function downpaymentLines()
+      {
+         $poLines = $this->lines()
+            ->where('BaseType', 22)
+            ->get(['BaseEntry', 'BaseLine']);
+
+         return DPO1::where('BaseType', 22)
+            ->where(function ($query) use ($poLines) {
+                  foreach ($poLines as $line) {
+                     $query->orWhere(function ($q) use ($line) {
+                        $q->where('BaseEntry', $line->BaseEntry)
+                           ->where('BaseLine', $line->BaseLine);
+                     });
+                  }
+            })->get();
+      }
+
      public function qualityResult()
      {
         return $this->hasOne(

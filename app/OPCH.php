@@ -29,7 +29,15 @@ class OPCH extends Model
     {
         return $this->hasMany(Vpm2::class, 'DocNum', 'ReceiptNum');
     }
+    // public function downPayments()
+    // {
+    //     return $this->hasMany(ODPO::class, 'NumAtCard', 'NumAtCard');
+    // }
 
+    public function pch9()
+    {
+        return $this->hasMany(PCH9::class, 'DocEntry', 'DocEntry');
+    }
     public function payments()
     {
         return $this->hasManyThrough(

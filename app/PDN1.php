@@ -22,4 +22,11 @@ class PDN1 extends Model
      {
         return $this->hasMany(PCH1::class, 'BaseEntry', 'DocEntry')->where('BaseType', 20);
      }
+
+     public function sourcePurchaseOrderLine()
+      {
+         return $this->belongsTo(POR1::class, 'BaseLine', 'LineNum')
+            ->where('BaseType', 22)
+            ->whereColumn('BaseEntry', 'DocEntry');
+      }
 }

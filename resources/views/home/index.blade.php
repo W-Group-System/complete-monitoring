@@ -110,6 +110,8 @@
                                             $MDeductionKg = 0;
                                             $totalFreightPo = 0;
                                             $totalTruckingPo = 0;
+                                            $apDownPaymentLinesTotal = 0;
+                                            $downpaymentDate = null;
                                         @endphp
                                             @foreach ($grpo->grpoLines as $line)
                                                 @php
@@ -119,9 +121,20 @@
                                                     $SubtotalArrvalWeight += $line->Quantity;
                                                 @endphp
                                             @endforeach
-                                            @foreach ($grpo->apDownPaymentLines as $dpLines)
+                                            {{-- @foreach ($grpo->apDownPaymentLines as $dpLines)
                                                 @php
                                                     $DownPayment += $dpLines->LineTotal;
+                                                @endphp
+                                            @endforeach --}}
+                                            @foreach ($grpo->grpoLines as $grpoLine)
+                                                @php
+                                                    $poLine = $grpoLine->sourcePurchaseOrderLine;
+
+                                                    if ($poLine) {
+                                                        foreach ($poLine->downpaymentLines as $dpLine) {
+                                                            $DownPayment += $dpLine->LineTotal;
+                                                        }
+                                                    }
                                                 @endphp
                                             @endforeach
                                             @foreach ($grpo->apDownPayments as $downPayment)
@@ -187,7 +200,7 @@
                                                 <td>{{ $grpo->grpoLines->first()->WhsCode }}</td>
                                                 <td>{{ $grpo->ToWhsCode }}</td>
                                                 <td>{{ \Carbon\Carbon::parse(trim($grpo->DocDate))->format('M-d-Y') }}</td>
-                                                <td>{{ number_format($NoOfBags, 2) }}</td>
+                                                <td>{{ number_format($NoOfBags) }}</td>
                                                 <td>{{ number_format($ArrivalWt,2) }}</td>
                                                 <td>{{ number_format($grpo->grpoLines->first()->Price ,2)}}</td>
                                                 <td>{{ number_format($Amount,2) }}</td>
@@ -222,18 +235,19 @@
                                                 </td>
                                                 <td>{{ optional($grpo->qualityResult)->U_VISCO }}</td>
                                                 <td>
-                                                    @if($grpo->apDownPayments->isNotEmpty())
-                                                        {{ number_format($DownPaymentPercent, 2) ?? 'N/A' }}
-                                                    @else
-                                                        N/A
-                                                    @endif
+                                                    @foreach($grpo->apInvoices->unique('DocEntry') as $invoice)
+                                                        @foreach($invoice->pch9 as $downPayment) 
+                                                        @php
+                                                            $downpaymentDate = $downPayment->BsDocDate
+                                                        @endphp
+                                                        {{ number_format($downPayment->DrawnSum,2) }}
+                                                        {{-- {{ $downPayment }} --}}
+                                                        @endforeach
+                                                    @endforeach
                                                 </td>
                                                 <td>
-                                                    @if($grpo->apDownPayments->isNotEmpty())
-                                                        {{ $grpo->apDownPayments->first()->DocDate ?? 'N/A' }}
-                                                    @else
-                                                        N/A
-                                                    @endif
+                                                    {{ \Carbon\Carbon::parse($downpaymentDate)->format('Y-m-d') }}
+
                                                 </td>
                                                 @foreach($grpo->apInvoices->unique('DocEntry') as $invoice)
                                                     @foreach($invoice->paymentMappings as $paymentMapping) 
@@ -255,7 +269,7 @@
                                                 <td>
                                                     @foreach($grpo->apInvoices->unique('DocEntry') as $invoice)
                                                         @foreach($invoice->payments as $outgoing) 
-                                                        {{ $outgoing->DocDate }}
+                                                        {{ \Carbon\Carbon::parse($outgoing->DocDate)->format('Y-m-d') }}
                                                         @endforeach
                                                     @endforeach
                                                 </td>
@@ -314,7 +328,7 @@
                                             <th>PRICE</th>
                                             <th>PRICE</th>
                                             <th>MONTH</th>
-                                            <th>TOTAL SPINOSSUM</th>
+                                            <th>TOTAL SPINOSUM</th>
                                             <th>MC AT DESTINATION</th>
                                         </tr>
                                     </thead>

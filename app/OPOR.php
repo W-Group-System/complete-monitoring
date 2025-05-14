@@ -29,4 +29,15 @@ class OPOR extends Model
      {
         return $this->hasMany(POR1::class, 'DocEntry', 'DocEntry');
      }
+     
+    //  public function apDownPaymentLines()
+    //  {
+    //      return $this->hasMany(DPO1::class, 'BaseRef', 'DocNum')
+    //                  ->where('BaseType', 22);
+    //  }
+    public function downpaymentRequests()
+    {
+        return $this->hasMany(ODPO::class, 'BaseEntry', 'DocEntry')
+                    ->where('BaseType', 22); 
+    }
 }

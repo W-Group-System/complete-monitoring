@@ -15,7 +15,10 @@ class Authenticate extends Middleware
     protected function redirectTo($request)
     {
         if (! $request->expectsJson()) {
-            return route('login');
+            // return route('login');
+            return $request->expectsJson()
+            ? null
+            : (app()->environment('local') ? 'http://localhost/sourcing_plan/public/login' : route('login'));
         }
     }
 }

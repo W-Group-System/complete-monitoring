@@ -55,7 +55,7 @@
                         <a href="index.html"><i class="fa fa-th-large"></i> <span class="nav-label">Summary</span> <span class="fa arrow"></span></a>
                         <ul class="nav nav-second-level">
                             <li class="active"><a href="{{url('/cott_summary')}}">Cottonii Summary</a></li>
-                            <li class="active"><a href="{{url('/spi_summary')}}">Spinossum Summary</a></li>
+                            <li class="active"><a href="{{url('/spi_summary')}}">Spinosum Summary</a></li>
                             <li class="active"><a href="{{url('/summary_suppliers')}}">Suppliers Summary Setup</a></li>
                         </ul>
                     </li>
