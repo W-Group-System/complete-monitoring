@@ -35,6 +35,13 @@
             </div>
         </div>
         <div class="col-lg-12">
+            <div class="ibox">
+                <div class="ibox-content">
+                    <button class="btn btn-success" onclick="exportTablesToExcel()">Export</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-12">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
                     <h5>Complete Monitoring</h5>
@@ -43,7 +50,7 @@
                     <div class="wrapper wrapper-content animated fadeIn">
                         <div class="row">
                             <div class="table-responsive">
-                                <table class="table table-bordered table-striped table-hover tablewithSearch">
+                                <table id="table1" class="table table-bordered table-striped table-hover tablewithSearch">
                                     <thead>
                                         <tr>
                                             <th colspan="6" class="text-center" style="color: black; background-color: rgb(7, 133, 7);">PURCHASE ORDER</th>
@@ -297,7 +304,7 @@
                     <div class="wrapper wrapper-content animated fadeIn">
                         <div class="row">
                             <div class="table-responsive">
-                                <table class="table table-bordered table-striped table-hover tablewithSearch">
+                                <table id="table2" class="table table-bordered table-striped table-hover tablewithSearch">
                                     <thead>
                                         <tr>
                                             <th class="text-center" style="color: black; background-color: rgb(58, 164, 235);">{{optional($grpos->first())->CardName}}</th>
@@ -475,4 +482,20 @@
         </div>
     </div>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+    function exportTablesToExcel() {
+        const wb = XLSX.utils.book_new();
+    
+        const table1 = document.getElementById('table1');
+        const ws1 = XLSX.utils.table_to_sheet(table1);
+        XLSX.utils.book_append_sheet(wb, ws1, 'Sheet1');
+    
+        const table2 = document.getElementById('table2');
+        const ws2 = XLSX.utils.table_to_sheet(table2);
+        XLSX.utils.book_append_sheet(wb, ws2, 'Sheet2');
+    
+        XLSX.writeFile(wb, 'report.xlsx');
+    }
+    </script> 
 @endsection
