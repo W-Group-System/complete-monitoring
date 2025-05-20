@@ -72,11 +72,7 @@ class OPDN extends Model
 
      public function qualityResult()
      {
-        return $this->hasOne(
-            SWDelIns::class,
-            'U_BatchNum', 
-            'NumAtCard'  
-        ); 
+        return $this->hasOne(SWDelIns::class,'U_BatchNum', 'NumAtCard'); 
      }
 
      public function freightPoInvoice()
