@@ -346,12 +346,14 @@
 <script>
     const pieLabels = [];
     const pieData = [];
-
     const areaCottoni = {};
 
-    @foreach ($suppliers as $supplier)
-        @php
+    @php
+        $supplierQuantities = [];
+
+        foreach ($suppliers as $supplier) {
             $totalCottoni = 0;
+
             foreach ($months as $month) {
                 $monthNum = date('m', strtotime($month));
                 $grpos = $supplier->opdn->filter(function($grpo) use ($monthNum) {
@@ -366,20 +368,27 @@
                     }
                 }
             }
-        @endphp
 
-        @if ($totalCottoni > 0)
-            pieLabels.push("{{ $supplier->CardName }}");
-            pieData.push({{ $totalCottoni }});
-
-            @php
-                $area = $supplier->OriginGroup;  
-            @endphp
-            if (!areaCottoni["{{ $area }}"]) {
-                areaCottoni["{{ $area }}"] = 0;
+            if ($totalCottoni > 0) {
+                $supplierQuantities[] = [
+                    'name' => $supplier->CardName,
+                    'quantity' => $totalCottoni,
+                    'area' => $supplier->OriginGroup,
+                ];
             }
-            areaCottoni["{{ $area }}"] += {{ $totalCottoni }};
-        @endif
+        }
+
+        $topSuppliers = collect($supplierQuantities)->sortByDesc('quantity')->take(10);
+    @endphp
+
+    @foreach ($topSuppliers as $supplier)
+        pieLabels.push(@json($supplier['name']));
+        pieData.push({{ $supplier['quantity'] }});
+
+        if (!areaCottoni[@json($supplier['area'])]) {
+            areaCottoni[@json($supplier['area'])] = 0;
+        }
+        areaCottoni[@json($supplier['area'])] += {{ $supplier['quantity'] }};
     @endforeach
 
     const pieColors = pieLabels.map(() =>
@@ -407,7 +416,7 @@
                 },
                 title: {
                     display: true,
-                    text: 'Total Cottoni per Supplier (Annual)'
+                    text: 'Top 10 Suppliers - Total Cottoni (Annual)'
                 },
                 datalabels: {
                     formatter: (value, context) => {
@@ -485,19 +494,17 @@
 
     function exportTablesToExcel() {
         const wb = XLSX.utils.book_new();
-    
+
         const table1 = document.getElementById('table1');
         const ws1 = XLSX.utils.table_to_sheet(table1);
         XLSX.utils.book_append_sheet(wb, ws1, 'Spinosum Summary');
-    
+
         const table2 = document.getElementById('table2');
         const ws2 = XLSX.utils.table_to_sheet(table2);
         XLSX.utils.book_append_sheet(wb, ws2, 'Summary Buying');
-    
+
         XLSX.writeFile(wb, 'report.xlsx');
     }
 </script>
-
-
 @endsection
 

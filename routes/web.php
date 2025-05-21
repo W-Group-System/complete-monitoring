@@ -71,6 +71,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/spi_summary','SummaryController@index');
     Route::get('/summary_suppliers','SummaryController@summary_suppliers');
     Route::post('/supplier_summary_setup','SummaryController@supplier_summary_setup');
+    Route::post('/supplier_summary_setup/edit/{id}','SummaryController@supplier_summary_edit');
 
 
     // Route::get('/home','UserController@index');
