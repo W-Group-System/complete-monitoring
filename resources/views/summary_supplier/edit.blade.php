@@ -23,6 +23,11 @@
                         </div>
 
                         <div class="form-group mb-2">
+                            Name
+                            <input type="text" name="short_name" class="form-control" value="{{ $supplier->Name }}">
+                        </div>
+
+                        <div class="form-group mb-2">
                             Origin
                             <select id="supplier_origin" data-placeholder="Select Origin" name="supplier_origin" class="chosen-select" style="width: 100%;" required>
                                 <option value=""></option>
