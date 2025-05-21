@@ -63,4 +63,14 @@ class SummaryController extends Controller
         return back()->with('success', 'Supplier created successfully.');
     }
 
+    public function supplier_summary_edit(Request $request, $id)
+
+    {
+
+        $edit_supplier = SummarySupplier::findOrFail($id);
+        $edit_supplier->OriginGroup = $request->supplier_origin;
+        $edit_supplier->save();
+        return back()->with('success', 'Supplier edited successfully.');
+    }
+
 }
