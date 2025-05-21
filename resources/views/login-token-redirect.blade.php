@@ -18,12 +18,24 @@
 <body>
     <div class="loader"></div>
     <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+
+        if (token) {
+            sessionStorage.setItem('api_token', token);
+
+            window.location.href = `/login-with-token-check?token=${token}`;
+        } else {
+            window.location.href = '/login';
+        }
+    </script>
+    {{-- <script>
         const token = sessionStorage.getItem('api_token');
         if (token) {
             window.location.href = `/complete-monitoring/public/login-with-token-check?token=${token}`;
         } else {
             window.location.href = `/complete-monitoring/public/login`;
         }
-    </script>
+    </script> --}}
 </body>
 </html>

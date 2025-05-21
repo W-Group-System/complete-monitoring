@@ -51,9 +51,12 @@ Route::get('/logout', function (Request $request) {
 
     $cookie = cookie('shared_session_cookie', '', -1, '/', '.localhost', false, true);
     
+    // $redirectUrl = app()->environment('local')
+    //     ? 'http://localhost/sourcing_plan/public/login'
+    //     : url('/login');
     $redirectUrl = app()->environment('local')
         ? 'http://localhost/sourcing_plan/public/login'
-        : url('/login');
+        : url('https://sourcing-plan.wsystem.online/login');
 
         return redirect($redirectUrl)->withCookie($cookie);
 })->name('logout');
