@@ -401,7 +401,7 @@
         data: {
             labels: pieLabels,
             datasets: [{
-                label: 'Total Cottoni (kg) per Supplier',
+                label: 'Total Spinosum (kg) per Supplier',
                 data: pieData,
                 backgroundColor: pieColors,
                 borderColor: 'white',
@@ -417,7 +417,7 @@
                 },
                 title: {
                     display: true,
-                    text: 'Top 10 Suppliers - Total Cottoni (Annual)'
+                    text: 'Top 10 Suppliers - Total Spinosum (Annual)'
                 },
                 datalabels: {
                     formatter: (value, context) => {
@@ -453,7 +453,7 @@
         data: {
             labels: areaLabels,
             datasets: [{
-                label: 'Total Cottoni (kg) by Area',
+                label: 'Total Spinosum (kg) by Area',
                 data: areaData,
                 backgroundColor: areaColors,
                 borderColor: 'white',
@@ -469,7 +469,7 @@
                 },
                 title: {
                     display: true,
-                    text: 'Total Cottoni per Area (Annual)'
+                    text: 'Total Spinosum per Area (Annual)'
                 },
                 datalabels: {
                     formatter: (value, context) => {
