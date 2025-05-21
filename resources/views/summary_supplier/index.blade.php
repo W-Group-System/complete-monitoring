@@ -19,6 +19,7 @@
                                                 <th>Action</th>
                                                 <th>Code</th>
                                                 <th>Name</th>
+                                                <th>Short Name</th>
                                                 <th>Source</th>
                                             </tr>
                                         </thead>
@@ -30,6 +31,7 @@
                                                 </td>
                                                 <td>{{ $supplier->CardCode }}</td>
                                                 <td>{{ $supplier->CardName }}</td>
+                                                <td>{{ $supplier->Name }}</td>
                                                 <td>{{ $supplier->OriginGroup }}</td>
                                             </tr>
                                             @endforeach

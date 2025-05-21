@@ -58,6 +58,7 @@ class SummaryController extends Controller
         $new_group = new SummarySupplier;
         $new_group->CardName = $request->supplier_name;
         $new_group->CardCode = $request->supplier_code;
+        $new_group->Name = $request->short_name;
         $new_group->OriginGroup = $request->supplier_origin;
         $new_group->save();
         return back()->with('success', 'Supplier created successfully.');
@@ -69,6 +70,7 @@ class SummaryController extends Controller
 
         $edit_supplier = SummarySupplier::findOrFail($id);
         $edit_supplier->OriginGroup = $request->supplier_origin;
+        $edit_supplier->Name = $request->short_name;
         $edit_supplier->save();
         return back()->with('success', 'Supplier edited successfully.');
     }

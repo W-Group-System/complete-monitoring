@@ -87,7 +87,7 @@
                                                 @else black;
                                                 @endif
                                             ">
-                                            {{ $supplier->CardName }}</td>
+                                            {{ $supplier->Name }}</td>
                                             <td style="
                                                 background-color:
                                                     @if($supplier->OriginGroup == 'ZAMBO') skyblue;
@@ -347,7 +347,18 @@
     const pieLabels = [];
     const pieData = [];
     const areaCottoni = {};
-
+    const predefinedColors = [
+        'hsl(0, 70%, 60%)',     // Red
+        'hsl(36, 70%, 60%)',    // Orange
+        'hsl(60, 70%, 60%)',    // Yellow
+        'hsl(120, 70%, 60%)',   // Green
+        'hsl(180, 70%, 60%)',   // Cyan
+        'hsl(210, 70%, 60%)',   // Sky Blue
+        'hsl(240, 70%, 60%)',   // Blue
+        'hsl(275, 70%, 60%)',   // Purple
+        'hsl(310, 70%, 60%)',   // Magenta
+        'hsl(330, 70%, 60%)'    // Pink
+        ];
     @php
         $supplierQuantities = [];
 
@@ -371,7 +382,7 @@
 
             if ($totalCottoni > 0) {
                 $supplierQuantities[] = [
-                    'name' => $supplier->CardName,
+                    'name' => $supplier->Name,
                     'quantity' => $totalCottoni,
                     'area' => $supplier->OriginGroup,
                 ];
@@ -391,10 +402,22 @@
         areaCottoni[@json($supplier['area'])] += {{ $supplier['quantity'] }};
     @endforeach
 
-    const pieColors = pieLabels.map(() =>
-        `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`
-    );
+    const newColors = [
+    'hsl(0, 70%, 60%)',     // Red
+    'hsl(36, 70%, 60%)',    // Orange
+    'hsl(60, 70%, 60%)',    // Yellow
+    'hsl(120, 70%, 60%)',   // Green
+    'hsl(180, 70%, 60%)',   // Cyan
+    'hsl(210, 70%, 60%)',   // Sky Blue
+    'hsl(240, 70%, 60%)',   // Blue
+    'hsl(275, 70%, 60%)',   // Purple
+    'hsl(310, 70%, 60%)',   // Magenta
+    'hsl(330, 70%, 60%)'    // Pink
+    ];
 
+    const pieColors = pieLabels.map((_, index) =>
+    newColors[index % newColors.length]
+    );
     const pieConfig = {
         type: 'pie',
         data: {
@@ -442,11 +465,10 @@
 
     const areaLabels = Object.keys(areaCottoni);
     const areaData = Object.values(areaCottoni);
-
-    const areaColors = areaLabels.map(() =>
-        `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`
+    
+    const areaColors = areaLabels.map((_, index) =>
+        predefinedColors[index % predefinedColors.length]
     );
-
     const pieConfigByArea = {
         type: 'pie',
         data: {
