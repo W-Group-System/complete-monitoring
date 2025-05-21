@@ -208,11 +208,20 @@
             const token = sessionStorage.getItem('api_token');
             
             if (token) {
-                window.location.href = `http://localhost/sourcing_plan/public/go-to-menu`;
+                window.location.href = `https://sourcing-plan.wsystem.online/go-to-menu?token=${token}`;
             } else {
-                window.location.href = `http://localhost/sourcing_plan/public/login`;
+                window.location.href = `https://sourcing-plan.wsystem.online/login`;
             }
         }
+        // function redirectToSystem1() {
+        //     const token = sessionStorage.getItem('api_token');
+            
+        //     if (token) {
+        //         window.location.href = `http://localhost/sourcing_plan/public/go-to-menu`;
+        //     } else {
+        //         window.location.href = `http://localhost/sourcing_plan/public/login`;
+        //     }
+        // }
     </script>
 </body>
 </html>
