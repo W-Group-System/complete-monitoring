@@ -305,7 +305,7 @@
             </div>
         </div>
 
-        <div class="col-lg-6">
+        <div class="col-lg-12">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
                     <h5>Per Supplier </h5>
@@ -313,7 +313,7 @@
                 <div class="ibox-content">
                     <div class="wrapper wrapper-content animated fadeIn">
                         <div class="row">
-                            <div style="max-width: 500px; width: 100%; margin: auto;">
+                            <div style="max-width: 1000px; width: 100%; margin: auto;">
                                 <canvas id="supplierCottoniPie"></canvas>
                             </div>
                         </div>
@@ -321,7 +321,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-6">
+        <div class="col-lg-12">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
                     <h5>Per Area </h5>
@@ -329,7 +329,7 @@
                 <div class="ibox-content">
                     <div class="wrapper wrapper-content animated fadeIn">
                         <div class="row">
-                            <div style="max-width: 500px; width: 100%; margin: auto;">
+                            <div style="max-width: 1000px; width: 100%; margin: auto;">
                                 <canvas id="areaCottoniPie"></canvas>
                             </div>
                         </div>
@@ -455,7 +455,8 @@
                         weight: 'bold',
                         size: 12
                     },
-                    align: 'center',
+                    align: 'end',
+                    anchor:'end',
                 }
             }
         },
@@ -506,7 +507,8 @@
                         weight: 'bold',
                         size: 12
                     },
-                    align: 'center',
+                    align: 'end',
+                    anchor: 'end',
                 }
             }
         },
