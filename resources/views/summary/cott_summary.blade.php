@@ -314,7 +314,7 @@
                     <div class="wrapper wrapper-content animated fadeIn">
                         <div class="row">
                             <div style="max-width: 1000px; width: 100%; margin: auto;">
-                                <canvas id="supplierCottoniPie"></canvas>
+                                <canvas style="max-width: 1000px; width: 100%; margin: auto;" id="supplierCottoniPie"></canvas>
                             </div>
                         </div>
                     </div>
@@ -455,7 +455,7 @@
                         weight: 'bold',
                         size: 12
                     },
-                    align: 'end',
+                    // align: 'end',
                     anchor:'end',
                 }
             }
@@ -507,7 +507,7 @@
                         weight: 'bold',
                         size: 12
                     },
-                    align: 'end',
+                    // align: 'end',
                     anchor: 'end',
                 }
             }

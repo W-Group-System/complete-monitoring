@@ -305,7 +305,7 @@
             </div>
         </div>
         
-        <div class="col-lg-6">
+        <div class="col-lg-12">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
                     <h5>Per Supplier </h5>
@@ -313,7 +313,7 @@
                 <div class="ibox-content">
                     <div class="wrapper wrapper-content animated fadeIn">
                         <div class="row">
-                            <div style="max-width: 500px; width: 100%; margin: auto;">
+                            <div style="max-width: 1000px; width: 100%; margin: auto;">
                                 <canvas id="supplierCottoniPie"></canvas>
                             </div>
                         </div>
@@ -321,7 +321,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-6">
+        <div class="col-lg-12">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
                     <h5>Per Area </h5>
@@ -329,7 +329,7 @@
                 <div class="ibox-content">
                     <div class="wrapper wrapper-content animated fadeIn">
                         <div class="row">
-                            <div style="max-width: 500px; width: 100%; margin: auto;">
+                            <div style="max-width: 1000px; width: 100%; margin: auto;">
                                 <canvas id="areaCottoniPie"></canvas>
                             </div>
                         </div>
@@ -428,7 +428,7 @@
                 data: pieData,
                 backgroundColor: pieColors,
                 borderColor: 'white',
-                borderWidth: 1
+                borderWidth: 1,
             }]
         },
         options: {
@@ -440,7 +440,7 @@
                 },
                 title: {
                     display: true,
-                    text: 'Top 10 Suppliers - Total Spinosum (Annual)'
+                    // text: 'Top 10 Suppliers - Total Spinosum (Annual)'
                 },
                 datalabels: {
                     formatter: (value, context) => {
@@ -455,7 +455,8 @@
                         weight: 'bold',
                         size: 12
                     },
-                    align: 'center,'
+                    // align: 'end',
+                    anchor:'end',
                 }
             }
         },
@@ -492,7 +493,7 @@
                 },
                 title: {
                     display: true,
-                    text: 'Total Spinosum per Area (Annual)'
+                    // text: 'Total Spinosum per Area (Annual)'
                 },
                 datalabels: {
                     formatter: (value, context) => {
@@ -507,7 +508,8 @@
                         weight: 'bold',
                         size: 12
                     },
-                    align: 'center,'
+                    // align: 'end',
+                    anchor: 'end',
                 }
             }
         },
