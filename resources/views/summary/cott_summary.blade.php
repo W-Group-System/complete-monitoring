@@ -119,7 +119,7 @@
                                                         $totalFreightPo = 0;
                                                         $totalTruckingPo = 0;
                                                         $deductionPhp = 0;
-                                                        $delPrice = null;
+                                                        $delPrice = 0;
                                                         foreach ($grpos as $grpo) {
                                                             foreach ($grpo->freightPoInvoice as $invoice) {
                                                                 foreach ($invoice->DeductionLines as $freightLine) {
@@ -136,14 +136,14 @@
                                                             }
                                         
                                                             foreach ($grpo->grpoLines as $line) {
-                                                                $qty = $line->Quantity;
-                                                                $price = $line->Price;
+                                                                $qty = (float) $line->Quantity;
+                                                                $price =(float) $line->Price;
                                         
-                                                                $totalArrivalWt += $line->Quantity;
-                                                                $totalWeightedAmount += $line->Quantity * $line->Price;
+                                                                $totalArrivalWt += (float) $line->Quantity;
+                                                                $totalWeightedAmount += (float) $line->Quantity *(float) $line->Price;
                                         
-                                                                $moisture = optional($grpo->qualityResult)->U_MOIST ?? 0;
-                                                                $avg2 = $grpo->U_Average2 ?? 0;
+                                                                $moisture = (float) (optional($grpo->qualityResult)->U_MOIST ?? 0);
+                                                                $avg2 = (float) ($grpo->U_Average2 ?? 0);
                                                                 $totalLabMc += $qty * $moisture;
                                         
                                                                 $mcDeduction = $moisture - $avg2;
@@ -375,7 +375,7 @@
 
                 foreach ($grpos as $grpo) {
                     foreach ($grpo->grpoLines as $line) {
-                        $totalCottoni += $line->Quantity;
+                        $totalCottoni += (float) $line->Quantity;
                     }
                 }
             }
@@ -427,7 +427,7 @@
                 data: pieData,
                 backgroundColor: pieColors,
                 borderColor: 'white',
-                borderWidth: 1
+                borderWidth: 1,
             }]
         },
         options: {
@@ -436,10 +436,11 @@
             plugins: {
                 legend: {
                     position: 'bottom',
+                    
                 },
                 title: {
                     display: true,
-                    text: 'Top 10 Suppliers - Total Cottoni (Annual)'
+                    // text: 'Top 10 Suppliers - Total Cottoni (Annual)'
                 },
                 datalabels: {
                     formatter: (value, context) => {
@@ -449,7 +450,7 @@
                         const percentage = (value / total * 100).toFixed(1);
                         return `${label}\n${percentage}%`;
                     },
-                    color: '#fff',
+                    color: 'black',
                     font: {
                         weight: 'bold',
                         size: 12
@@ -490,7 +491,7 @@
                 },
                 title: {
                     display: true,
-                    text: 'Total Cottoni per Area (Annual)'
+                    // text: 'Total Cottoni per Area (Annual)'
                 },
                 datalabels: {
                     formatter: (value, context) => {
@@ -500,7 +501,7 @@
                         const percentage = (value / total * 100).toFixed(1);
                         return `${label}\n${percentage}%`;
                     },
-                    color: '#fff',
+                    color: 'black',
                     font: {
                         weight: 'bold',
                         size: 12

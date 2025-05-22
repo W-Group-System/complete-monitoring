@@ -450,12 +450,12 @@
                         const percentage = (value / total * 100).toFixed(1);
                         return `${label}\n${percentage}%`;
                     },
-                    color: '#fff',
+                    color: 'black',
                     font: {
                         weight: 'bold',
                         size: 12
                     },
-                    align: 'center',
+                    align: 'center,'
                 }
             }
         },
@@ -502,12 +502,12 @@
                         const percentage = (value / total * 100).toFixed(1);
                         return `${label}\n${percentage}%`;
                     },
-                    color: '#fff',
+                    color: 'black',
                     font: {
                         weight: 'bold',
                         size: 12
                     },
-                    align: 'center',
+                    align: 'center,'
                 }
             }
         },
