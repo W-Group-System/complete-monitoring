@@ -18,7 +18,7 @@ class Authenticate extends Middleware
             // return route('login');
             return $request->expectsJson()
             ? null
-            : (app()->environment('local') ? 'http://localhost/sourcing_plan/public/login' : route('login'));
+            : (app()->environment('local') ? 'http://localhost/sourcing_plan/public/login' : route('https://sourcing-plan.wsystem.online/login'));
         }
     }
 }
