@@ -205,7 +205,8 @@
                                                 <td>{{ $grpo->U_Shhippingline }}</td>
                                                 <td>{{ $grpo->U_Plateno }}</td>
                                                 <td>{{ $grpo->grpoLines->first()->WhsCode }}</td>
-                                                <td>{{ $grpo->ToWhsCode }}</td>
+                                                {{-- <td>{{ $grpo->ToWhsCode }}</td> --}}
+                                                <td>{{  \Carbon\Carbon::parse(trim($grpo->U_AWBdate))->format('M-d-Y')  }}</td>
                                                 <td>{{ \Carbon\Carbon::parse(trim($grpo->DocDate))->format('M-d-Y') }}</td>
                                                 <td>{{ number_format($NoOfBags) }}</td>
                                                 <td>{{ number_format($ArrivalWt,2) }}</td>
