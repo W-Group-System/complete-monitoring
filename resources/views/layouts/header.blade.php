@@ -235,7 +235,8 @@
         $('.chosen-select').chosen({width: "100%"});
 
         function redirectToSystem1() {
-            const token = sessionStorage.getItem('api_token');
+            // const token = sessionStorage.getItem('api_token');
+            const token = "{{ request()->token }}";
             
             if (token) {
                 window.location.href = `https://sourcing-plan.wsystem.online/go-to-menu?token=${token}`;
