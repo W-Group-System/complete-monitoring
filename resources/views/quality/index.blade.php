@@ -21,9 +21,9 @@
                                         <thead>
                                              <tr>
                                                 <th>Action</th>
+                                                <th>GRPO</th>
                                                 <th>Code</th>
                                                 <th>Name</th>
-                                                <th>Short Name</th>
                                                 <th>Source</th>
                                             </tr>
                                         </thead>
