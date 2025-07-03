@@ -101,6 +101,7 @@
                                             $SubtotalArrvalWeight = 0;
                                         @endphp
                                         @foreach ($grpos as $grpo)
+                                        
                                         @php
                                             $NoOfBags = 0;
                                             $ArrivalWt = 0;
@@ -119,6 +120,27 @@
                                             $totalTruckingPo = 0;
                                             $apDownPaymentLinesTotal = 0;
                                             $downpaymentDate = null;
+
+                                            $moistureResult = optional(optional($grpo->quality_created)->chemical_testings)
+                                                ->first(function ($item) {
+                                                    return stripos($item->parameter, 'moisture') !== false;
+                                                })->result ?? null;
+                                            $labYieldResult = optional(optional($grpo->quality_created)->chemical_testings)
+                                                ->first(function ($item) {
+                                                    return stripos($item->parameter, 'lab yield') !== false;
+                                                })->result ?? null;
+                                            $calGelResult = optional(optional($grpo->quality_created)->chemical_testings)
+                                                ->first(function ($item) {
+                                                    return stripos($item->parameter, 'Calcium') !== false;
+                                                })->result ?? null;
+                                            $potGelResult = optional(optional($grpo->quality_created)->chemical_testings)
+                                                ->first(function ($item) {
+                                                    return stripos($item->parameter, 'Potassium') !== false;
+                                                })->result ?? null;
+                                            $viscousResult = optional(optional($grpo->quality_created)->chemical_testings)
+                                                ->first(function ($item) {
+                                                    return stripos($item->parameter, 'Viscosity') !== false;
+                                                })->result ?? null;
                                         @endphp
                                             @foreach ($grpo->grpoLines as $line)
                                                 @php
@@ -156,7 +178,9 @@
                                                 @endphp
                                             @endforeach
                                             @php
-                                                $moist = optional($grpo->qualityResult)->U_MOIST ?? 0;
+                                                // $moist = optional($grpo->qualityResult)->U_MOIST ?? 0;
+                                                $moist_value = $moistureResult ?? 0;
+                                                $moist= floatval(preg_replace('/[^0-9.]/', '', $moist_value));
                                                 $average2 = $grpo->U_Average2 ?? 0;
 
                                                 $MDeduction = $moist - ($average2);
@@ -217,7 +241,6 @@
                                                 </td>
                                                 <td>
                                                     {{ $MDeductionKg > 0 ? number_format($MDeductionKg,2) : '-' }}
-
                                                 </td>
                                                 <td> 
                                                     @foreach ($grpo->apInvoices as $invoice)
@@ -231,17 +254,26 @@
                                                 </td>
                                                 <th>{{number_format(($grpo->grpoLines->first()->Price - max($McDeductionPhp, 0) ) + (($totalFreightPo + $totalTruckingPo) / $ArrivalWt),2)}}
                                                 </th>
-                                                <td>{{ optional($grpo->qualityResult)->U_OCULARMC }}</td>
-                                                <td>{{ optional($grpo->qualityResult)->U_MOIST }}</td>
-                                                <td>{{ optional($grpo->qualityResult)->U_LABYIELD }}</td>
+                                                {{-- <td>{{ optional($grpo->qualityResult)->U_OCULARMC }}</td> --}}
+                                                <td>{{ optional($grpo->quality_created)->ocular_mc }}</td>
+                                                {{-- <td>{{ optional($grpo->qualityResult)->U_MOIST }}</td> --}}
+                                                <td>{{ $moistureResult }}</td>
+                                                {{-- <td>{{ optional($grpo->qualityResult)->U_LABYIELD }}</td> --}}
+                                                <td>{{ $labYieldResult }}</td>
                                                 <td>
-                                                    @if (optional($grpo->qualityResult)->U_POTGEL == "-")
+                                                    {{-- @if (optional($grpo->qualityResult)->U_POTGEL == "-")
                                                         {{ optional($grpo->qualityResult)->U_CALGEL }}
                                                     @else
                                                         {{ optional($grpo->qualityResult)->U_POTGEL }}
+                                                    @endif --}}
+                                                    @if ($calGelResult !== null)
+                                                        {{ $calGelResult }}
+                                                    @else
+                                                        {{ $potGelResult }}
                                                     @endif
                                                 </td>
-                                                <td>{{ optional($grpo->qualityResult)->U_VISCO }}</td>
+                                                {{-- <td>{{ optional($grpo->qualityResult)->U_VISCO }}</td> --}}
+                                                <td>{{ $viscousResult }}</td>
                                                 <td>
                                                     @foreach($grpo->apInvoices->unique('DocEntry') as $invoice)
                                                         @foreach($invoice->pch9 as $downPayment) 
@@ -395,10 +427,12 @@
                                                         foreach ($grpo->grpoLines as $line) {
                                                             $totalArrivalWt_COTPHIL += $line->Quantity;
                                                             $totalWeightedAmount_COTPHIL += ($line->Quantity * $line->Price);
-                                                            $moistureContent = (float) optional($grpo->qualityResult)->U_MOIST;
+                                                            // $moistureContent = (float) optional($grpo->qualityResult)->U_MOIST;
+                                                            $moistureContent = (float) optional($grpo->qualityResult)->moistureResult;
                                                             $totalLabMc_COTPHIL += (float) $line->Quantity * $moistureContent;
 
-                                                            $MCottDeduction = optional($grpo->qualityResult)->U_MOIST - ($grpo->U_Average2 ?? 0);
+                                                            // $MCottDeduction = optional($grpo->qualityResult)->U_MOIST - ($grpo->U_Average2 ?? 0);
+                                                            $MCottDeduction = optional($grpo->qualityResult)->moistureResult - ($grpo->U_Average2 ?? 0);
                                                             $McCottDeductionPhp = ($MCottDeduction/100) * $line->Price;
                                                             $weightedAvgDeliveredPrice_COTPHIL = $totalArrivalWt_COTPHIL ? number_format(($line->Price - max($McCottDeductionPhp, 0) ) + (($totalCottFreightPo + $totalCottTruckingPo) / $totalArrivalWt_COTPHIL),2): null;
 
@@ -440,10 +474,12 @@
                                                         foreach ($grpo->grpoLines as $line) {
                                                             $totalArrivalWt_SPIPHIL += $line->Quantity;
                                                             $totalWeightedAmount_SPIPHIL += ($line->Quantity * $line->Price);
-                                                            $moistureContent = (float) optional($grpo->qualityResult)->U_MOIST;
+                                                            // $moistureContent = (float) optional($grpo->qualityResult)->U_MOIST;
+                                                            $moistureContent = (float) optional($grpo->qualityResult)->moistureResult;
                                                             $totalLabMc_SPIPHIL += (float) $line->Quantity * $moistureContent;
 
-                                                            $MSpiDeduction = optional($grpo->qualityResult)->U_MOIST - ($grpo->U_Average2 ?? 0);
+                                                            // $MSpiDeduction = optional($grpo->qualityResult)->U_MOIST - ($grpo->U_Average2 ?? 0);
+                                                            $MSpiDeduction = optional($grpo->qualityResult)->moistureResult - ($grpo->U_Average2 ?? 0);
                                                             $McSpiDeductionPhp = ($MSpiDeduction/100) * $line->Price;
                                                             $weightedAvgDeliveredPrice_SPIPHIL = $totalArrivalWt_SPIPHIL ? number_format(($line->Price - max($McSpiDeductionPhp, 0) ) + (($totalSpiFreightPo + $totalSpiTruckingPo) / $totalArrivalWt_SPIPHIL),2): null;
                                                         }

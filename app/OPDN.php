@@ -87,4 +87,8 @@ class OPDN extends Model
      {
         return $this->hasMany(OPOR::class, 'U_truckingPO', 'DocNum');
      }
+     public function quality_created()
+     {
+        return $this->hasOne(Quality::class, 'grpo_no', 'DocNum');
+     }
 }
