@@ -8,7 +8,7 @@
                     <h4 class="ibox-title">
                         <form method="GET" action="{{ url('/quality') }}" class="form-inline" style="margin-bottom: 15px;" onsubmit="show()">
                             <div class="form-group">
-                                <input type="text" name="search" class="form-control" placeholder="Search Invoices" value="{{ request('search') }}">
+                                <input type="text" name="search" class="form-control" placeholder="Search" value="{{ request('search') }}">
                             </div>
                             <button type="submit" class="btn btn-primary">Search</button>
                         </form>
