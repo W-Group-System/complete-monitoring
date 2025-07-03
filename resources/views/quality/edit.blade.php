@@ -24,7 +24,7 @@
                         </div>
                         <div class="col-md-6 mb-2">
                             <label>Date of Delivery</label>
-                            <input type="text" class="form-control" value="{{ $grpo->DocDate }}" readonly>
+                            <input type="text" class="form-control" value="{{ \Carbon\Carbon::parse($grpo->DocDate)->format('Y-m-d') }}" readonly>
                         </div>
                         <div class="col-md-6 mb-2">
                             <label>Container/Plate No.</label>
@@ -52,7 +52,7 @@
                         @endforeach
                         <div class="col-md-6 mb-2">
                             <label>QTY Delivered</label>
-                            <input type="text" class="form-control" value="{{ $ArrivalWt }}" readonly>
+                            <input type="text" class="form-control" value="{{ number_format($ArrivalWt, 0, '.', ',') }}"  readonly>
                         </div>
                         <div class="col-md-6 mb-2">
                             <label>Number of Bags</label>
