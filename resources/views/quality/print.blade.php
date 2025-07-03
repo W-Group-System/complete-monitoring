@@ -466,13 +466,13 @@
         @endforeach
     </div>
     <div class="signature-left">
-        <span class="signature-label">Verified by:</span>
+        <span class="signature-label">Analyzed by:</span>
         <span class="signature-line"></span>
         <i>Seaweeds Analyst</i>
     </div>
 
     <div class="signature-right">
-        <span class="signature-label">Analyzed by:</span>
+        <span class="signature-label">Verified by:</span>
         <span class="signature-line"></span>
         <i>Senior QC Supervisor</i>
     </div>
