@@ -30,6 +30,7 @@ class AuthController extends Controller
             return redirect('/quality');
         }
 
+        session(['api_token' => $token]);
         return redirect('/home');
         
     }
