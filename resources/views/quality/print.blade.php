@@ -198,7 +198,7 @@
             @endforeach
             <tr>
                 <td><span class="label">QTY Delivered:</span></td>
-                <td class="underline">{{ number_format($ArrivalWt, 0, '.', ',') }}</td>
+                <td class="underline">{{ number_format($ArrivalWt, 2, '.', ',') }}</td>
                 <td class="label-right"><span class="label">Number of Bags:</span></td>
                 <td class="underline">{{ $NoOfBags }}</td>
             </tr>

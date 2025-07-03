@@ -52,7 +52,7 @@
                         @endforeach
                         <div class="col-md-6 mb-2">
                             <label>QTY Delivered</label>
-                            <input type="text" class="form-control" value="{{ number_format($ArrivalWt, 0, '.', ',') }}"  readonly>
+                            <input type="text" class="form-control" value="{{ number_format($ArrivalWt, 2, '.', ',') }}"  readonly>
                         </div>
                         <div class="col-md-6 mb-2">
                             <label>Number of Bags</label>
