@@ -381,7 +381,13 @@
         <tr>
             <td>{{ $param }}</td>
             <td>{{ $item['spec'] }} </td>
-            <td>{{ $stored->result ?? '' }}</td>
+            <td>
+                @if(str_contains($param, '%') && isset($stored->result))
+                    {{ $stored->result }}%
+                @else
+                    {{ $stored->result ?? '' }}
+                @endif
+            </td>
             <td>{{ $stored->remarks ?? '' }}</td>
         </tr>
         @endforeach
