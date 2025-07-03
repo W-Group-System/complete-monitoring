@@ -26,7 +26,12 @@ class AuthController extends Controller
 
         Auth::login($user);
 
+         if (auth()->user()->position === 'Plant Analyst') {
+            return redirect('/quality');
+        }
+
         return redirect('/home');
+        
     }
 
 

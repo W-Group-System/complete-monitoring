@@ -41,7 +41,7 @@ Route::get('/login-with-token', function () {
 //         return redirect()->away($system1Url);
 // })->name('system2.menu');
 
-Route::get('/login-with-token-check', 'AuthController@loginWithToken');
+Route::get('/login-with-token', 'AuthController@loginWithToken');
 
 Route::get('/logout', function (Request $request) {
     Auth::logout();
@@ -73,6 +73,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/supplier_summary_setup','SummaryController@supplier_summary_setup');
     Route::post('/supplier_summary_setup/edit/{id}','SummaryController@supplier_summary_edit');
 
+    Route::get('/quality','QualityController@index');
+    Route::post('/quality/edit/{id}','QualityController@quality_edit');
+    Route::get('/print_qiality_report/{id}', 'QualityController@print');
 
     // Route::get('/home','UserController@index');
 

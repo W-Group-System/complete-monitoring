@@ -32,9 +32,23 @@
     <link rel="stylesheet" href="{{ asset('css/plugins/select2/select2.min.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
 
+    <style>
+        .loader {
+            position: fixed;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            background: url("{{ asset('/img/3.gif')}}") 50% 50% no-repeat rgb(249,249,249) ;
+            opacity: .8;
+            background-size:180px 160px;
+        }
+    </style>
 </head>
 
 <body>
+    <div id = "myDiv" style="display:none;" class="loader"></div>
     <div id="wrapper">
         <nav class="navbar-default navbar-static-side" role="navigation">
             <div class="sidebar-collapse">
@@ -48,16 +62,21 @@
                             <span class="clear"> <span class="block m-t-xs"> <strong class="font-bold">{{ auth()->user()->name }}</strong>
                         </div>
                     </li>
-                    <li class="active">
-                        <a href="{{url('/home')}}"><i class="fa fa-th-large"></i> <span class="nav-label">Complete Monitoring</span></a>
-                    </li>
+                    @if (auth()->user()->position != "Plant Analyst")
+                        <li class="">
+                            <a href="{{url('/home')}}"><i class="fa fa-th-large"></i> <span class="nav-label">Complete Monitoring</span></a>
+                        </li>
+                        <li>
+                            <a href="index.html"><i class="fa fa-th-large"></i> <span class="nav-label">Summary</span> <span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li class="active"><a href="{{url('/cott_summary')}}">Cottonii Summary And Charts</a></li>
+                                <li class="active"><a href="{{url('/spi_summary')}}">Spinosum Summary And Charts</a></li>
+                                <li class="active"><a href="{{url('/summary_suppliers')}}">Suppliers Summary Setup</a></li>
+                            </ul>
+                        </li>
+                    @endif
                     <li>
-                        <a href="index.html"><i class="fa fa-th-large"></i> <span class="nav-label">Summary</span> <span class="fa arrow"></span></a>
-                        <ul class="nav nav-second-level">
-                            <li class="active"><a href="{{url('/cott_summary')}}">Cottonii Summary And Charts</a></li>
-                            <li class="active"><a href="{{url('/spi_summary')}}">Spinosum Summary And Charts</a></li>
-                            <li class="active"><a href="{{url('/summary_suppliers')}}">Suppliers Summary Setup</a></li>
-                        </ul>
+                        <a href="{{url('/quality')}}"><i class="fa fa-th-large"></i> <span class="nav-label">Quality</span></a>
                     </li>
                 </ul>
 
@@ -184,6 +203,17 @@
         }
     </style>
     <script>
+         function show() {
+            document.getElementById("myDiv").style.display="block";
+        }
+        window.addEventListener('load', function () {
+            document.getElementById("myDiv").style.display = "none";
+        });
+
+        window.addEventListener('pageshow', function (event) {
+            document.getElementById("myDiv").style.display = "none";
+        });
+
         $(document).ready(function(){
             $('.datatables-sample').DataTable({
                 pageLength: 25,
