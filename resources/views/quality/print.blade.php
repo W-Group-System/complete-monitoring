@@ -33,8 +33,8 @@
     }
     .label-right-two{
         font-weight: bold;
-        padding-left: 25px !important;
-        width: 15% !important;
+        padding-left: 30px !important;
+        width: 16% !important;
     }
     .underline-two {
         border-bottom:solid 10px #000 !important;
@@ -176,7 +176,7 @@
         <table>
             <tr>
                 <td style="width: 11%;"><span class="label">Date of Delivery:</span></td>
-                <td class="underline">{{ \Carbon\Carbon::parse($details->DocDate)->format('Y-m-d') }}</td>
+                <td class="underline">{{ \Carbon\Carbon::parse($details->DocDate)->format('F j,Y') }}</td>
                 <td class="label-right"><span class="label">Container/Plate No:</span></td>
                 <td class="underline">{{ $details->U_ContainerNo }}</td>
             </tr>
@@ -214,7 +214,7 @@
      <div class="border-frame">
         <table>
             <tr>
-                <td style="width: 9%;"><span class="label">Seaweeds:</span></td>
+                <td style="width: 7%;"><span class="label">Seaweeds:</span></td>
                 <td>
                     <label class="seaweeds-label">
                         <input type="checkbox" class="seaweeds"
