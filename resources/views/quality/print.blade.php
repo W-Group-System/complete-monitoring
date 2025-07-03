@@ -176,7 +176,7 @@
         <table>
             <tr>
                 <td style="width: 11%;"><span class="label">Date of Delivery:</span></td>
-                <td class="underline">{{ $details->DocDate }}</td>
+                <td class="underline">{{ \Carbon\Carbon::parse($details->DocDate)->format('Y-m-d') }}</td>
                 <td class="label-right"><span class="label">Container/Plate No:</span></td>
                 <td class="underline">{{ $details->U_ContainerNo }}</td>
             </tr>
@@ -198,7 +198,7 @@
             @endforeach
             <tr>
                 <td><span class="label">QTY Delivered:</span></td>
-                <td class="underline">{{ $ArrivalWt }}</td>
+                <td class="underline">{{ number_format($ArrivalWt, 0, '.', ',') }}</td>
                 <td class="label-right"><span class="label">Number of Bags:</span></td>
                 <td class="underline">{{ $NoOfBags }}</td>
             </tr>
