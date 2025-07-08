@@ -411,6 +411,8 @@
                 <td>
                     @if(str_contains($param, '%') && isset($stored->result))
                         {{ $stored->result }}%
+                    @elseif(str_contains($param, 'Gel Strength') && isset($stored->result))
+                        {{ (int) $stored->result }}
                     @else
                         {{ $stored->result ?? '' }}
                     @endif
@@ -445,7 +447,7 @@
                 <td class="center">{{ optional(optional($details->quality_created)->tie_tie)->impurities}}</td>
                 <td class="center">{{ optional(optional($details->quality_created)->tie_tie)->weight}}</td>
                 <td class="center">{{ optional(optional($details->quality_created)->tie_tie)->percent}}</td>
-                <td class="center">{{ optional(optional($details->quality_created)->tie_tie)->parts_million}}</td>
+                <td class="center">{{ number_format(optional(optional($details->quality_created)->tie_tie)->parts_million)}}</td>
             </tr>
             <tr>
                 <td>
@@ -464,7 +466,7 @@
                 <td class="center">{{ optional(optional($details->quality_created)->sand)->impurities}}</td>
                 <td class="center">{{ optional(optional($details->quality_created)->sand)->weight}}</td>
                 <td class="center">{{ optional(optional($details->quality_created)->sand)->percent}}</td>
-                <td class="center">{{ optional(optional($details->quality_created)->sand)->parts_million}}</td>
+                <td class="center">{{ number_format(optional(optional($details->quality_created)->sand)->parts_million)}}</td>
             </tr>
             <tr class="center">
                 <td>
