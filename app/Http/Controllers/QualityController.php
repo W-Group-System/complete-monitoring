@@ -181,6 +181,28 @@ class QualityController extends Controller
         View::share('details', $details);
         $pdf = PDF::loadView('quality.print', ['details' => $details]);
         $pdf->setPaper('a4', 'portrait');
+        
+        $dompdf = $pdf->getDomPDF();
+        $canvas = $dompdf->getCanvas();
+
+        $canvas->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) {
+        $font = $fontMetrics->getFont('Helvetica', 'normal');
+        $size = 10;
+
+        $leftX = 40;
+        $y1 = 800;
+        $canvas->text($leftX, $y1, 'FR-QCD-10', $font, $size);
+        $canvas->text($leftX, $y1 + 12, 'Rev. 08 06/02/2025', $font, $size);
+
+        $rightText1 = 'Copy to: SW Purchasing:';
+        $rightText2 = 'Filed by: QCD-SW';
+        $rightText3 = "Page $pageNumber of $pageCount";
+
+        $rightX = 460;
+        $canvas->text($rightX, $y1, $rightText1, $font, $size);
+        $canvas->text($rightX, $y1 + 12, $rightText2, $font, $size);
+        $canvas->text($rightX, $y1 + 24, $rightText3, $font, $size);
+    });
         return $pdf->stream('Quality Report');
     }
 }
