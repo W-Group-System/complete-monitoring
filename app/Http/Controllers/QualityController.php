@@ -55,6 +55,8 @@ class QualityController extends Controller
         $quality->budget_yield = $request->budget_yield;
         $quality->ice = $request->ice_ice;
         $quality->moss = $request->moss;
+        $quality->status = "Pending";
+        $quality->requested_by = auth()->user()->id;
         $quality->save();
 
         if ($request->has('condition')) {
@@ -76,16 +78,22 @@ class QualityController extends Controller
         $results = $request->quality_result;
         $remarks = $request->quality_remarks;
 
-        for ($i = 0; $i < count($parameters); $i++) {
+        for ($i = 0; $i < count($specifications); $i++) {
             $param = $parameters[$i];
+            $spec = $specifications[$i];
+
             $chemical_testing = ChemicalTesting::firstOrNew([
                 'quality_id' => $quality->id,
-                'parameter' => $param,
+                'parameter' => $param, 
+                'specification' => $spec,
             ]);
-            $chemical_testing->specification = $specifications[$i];
+
+            $chemical_testing->parameter = $param;
+            $chemical_testing->specification = $spec;
             $chemical_testing->result = $results[$i] ?? null;
             $chemical_testing->remarks = $remarks[$i] ?? null;
             $chemical_testing->save();
+
         }
 
         $foms = Fom::firstOrNew(['quality_id' => $quality->id]);
@@ -107,6 +115,46 @@ class QualityController extends Controller
         return back()->with('success', 'Quality Edited.');
     }
 
+    public function quality_approval(Request $request)
+    {
+        $search = $request->input('search');
+
+        $pendingGrpoNos = Quality::on('mysql')
+        ->where('status', 'Pending')
+        ->pluck('grpo_no')
+        ->toArray();
+
+         $grpos = OPDN::whereIn('DocNum', $pendingGrpoNos)
+            ->when($search, function ($query) use ($search) {
+                $terms = explode(' ', $search);
+                foreach ($terms as $term) {
+                    $query->where(function($q) use ($term) {
+                        $q->where('DocNum', 'LIKE', "%{$term}%")
+                            ->orWhere('NumAtCard', 'LIKE', "%{$term}%")
+                            ->orWhere('CardName', 'LIKE', "%{$term}%");
+                    });
+                }
+            })
+        ->orderBy('DocDate', 'desc')
+        ->paginate(10);
+         return view('quality.for_approval', compact('grpos', 'search'));
+    }
+    public function ApproveQuality(Request $request, $id)
+    {
+        $approveQuality = Quality::findOrFail($id);
+        $approveQuality->status = "Approved";
+        $approveQuality->approved_by = auth()->user()->id;
+        $approveQuality->save();
+        return response()->json(['message' => 'Quality Request Approved.']);
+    }
+    public function DisapproveQuality(Request $request, $id)
+    {
+        $approveQuality = Quality::findOrFail($id);
+        $approveQuality->status = "Disapproved";
+        $approveQuality->approved_by = auth()->user()->id;
+        $approveQuality->save();
+        return response()->json(['message' => 'Quality Request Disapproved.']);
+    }
 
     // public function quality_edit (Request $request, $id)
     // {
