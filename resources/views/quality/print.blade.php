@@ -398,16 +398,22 @@
                 ];
             @endphp
             @php
-                $testingMap = collect(optional($details->quality_created)->chemical_testings)->keyBy('parameter');
+                $testingMap = collect(optional($details->quality_created)->chemical_testings)
+                    ->mapWithKeys(function ($item) {
+                        $key = trim($item->parameter ?? '') . '|' . trim($item->specification ?? '');
+                        return [$key => $item];
+                    });
             @endphp
             @foreach ($qualityItems as $item)
                 @php
-                    $param = $item['parameter'];
-                    $stored = $testingMap[$param] ?? null;
+                    $param = trim($item['parameter']);
+                    $spec = trim($item['spec']);
+                    $key = $param . '|' . $spec;
+                    $stored = $testingMap[$key] ?? null;
                 @endphp
             <tr>
                 <td>{{ $param }}</td>
-                <td>{{ $item['spec'] }} </td>
+                <td>{{ $spec }} </td>
                 <td>
                     @if(str_contains($param, '%') && isset($stored->result))
                         {{ $stored->result }}%
