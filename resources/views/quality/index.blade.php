@@ -25,6 +25,8 @@
                                                 <th>Code</th>
                                                 <th>Name</th>
                                                 <th>Source</th>
+                                                <th>Status</th>
+                                                <th>Remarks</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -42,6 +44,8 @@
                                                 <td>{{ $grpo->NumAtCard }}</td>
                                                 <td>{{ $grpo->CardName }}</td>
                                                 <td>{{ $grpo->grpoLines->first()->ItemCode }}</td>
+                                                <td>{{ optional($grpo->quality_created)->status }}</td>
+                                                <td>{{ optional($grpo->quality_created)->approve_remarks }}</td>
                                             </tr>
                                             @endforeach
                                         </tbody>

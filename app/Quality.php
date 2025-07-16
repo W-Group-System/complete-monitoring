@@ -41,4 +41,8 @@ class Quality extends Model
     {
         return $this->hasOne(Sand::class, 'quality_id', 'id');
     }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'requested_by', 'id');
+    }
 }

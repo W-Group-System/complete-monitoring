@@ -13,6 +13,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>INSPINIA | Dashboard</title>
 
@@ -62,24 +63,39 @@
                             <span class="clear"> <span class="block m-t-xs"> <strong class="font-bold">{{ auth()->user()->name }}</strong>
                         </div>
                     </li>
-                    @if (auth()->user()->position != "Plant Analyst")
-                        <li class="">
-                            <a href="{{url('/home')}}"><i class="fa fa-th-large"></i> <span class="nav-label">Complete Monitoring</span></a>
+                    @if (auth()->user()->position != "Plant Analyst" && auth()->user()->position != "QC Senior Supervisor")
+                        <li class="{{ Request::is('home') ? 'active' : '' }}">
+                            <a href="{{ url('/home') }}"><i class="fa fa-th-large"></i> <span class="nav-label">Complete Monitoring</span></a>
                         </li>
-                        <li>
-                            <a href="index.html"><i class="fa fa-th-large"></i> <span class="nav-label">Summary</span> <span class="fa arrow"></span></a>
+                        <li class="{{ Request::is('cott_summary', 'spi_summary', 'summary_suppliers') ? 'active' : '' }}">
+                            <a href="#"><i class="fa fa-th-large"></i> <span class="nav-label">Summary</span> <span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
-                                <li class="active"><a href="{{url('/cott_summary')}}">Cottonii Summary And Charts</a></li>
-                                <li class="active"><a href="{{url('/spi_summary')}}">Spinosum Summary And Charts</a></li>
-                                <li class="active"><a href="{{url('/summary_suppliers')}}">Suppliers Summary Setup</a></li>
+                                <li class="{{ Request::is('cott_summary') ? 'active' : '' }}">
+                                    <a href="{{ url('/cott_summary') }}">Cottonii Summary And Charts</a>
+                                </li>
+                                <li class="{{ Request::is('spi_summary') ? 'active' : '' }}">
+                                    <a href="{{ url('/spi_summary') }}">Spinosum Summary And Charts</a>
+                                </li>
+                                <li class="{{ Request::is('summary_suppliers') ? 'active' : '' }}">
+                                    <a href="{{ url('/summary_suppliers') }}">Suppliers Summary Setup</a>
+                                </li>
                             </ul>
                         </li>
+                    @elseif (auth()->user()->position == "QC Senior Supervisor")
+                        <li class="{{ Request::is('quality_approval') ? 'active' : '' }}">
+                            <a href="{{ url('/quality_approval') }}">Quality Result Approval</a>
+                        </li>
                     @endif
-                    <li>
-                        <a href="{{url('/quality')}}"><i class="fa fa-th-large"></i> <span class="nav-label">Quality</span></a>
+                    @if (auth()->user()->position == "Plant Analyst")
+                        <li class="{{ Request::is('quality') ? 'active' : '' }}">
+                            <a href="{{ url('/quality') }}"><i class="fa fa-th-large"></i> <span class="nav-label">Quality</span></a>
+                        </li>
+                    @endif
+                    
+                    <li class="{{ Request::is('qualityReport') ? 'active' : '' }}">
+                        <a href="{{ url('/qualityReport') }}"><i class="fa fa-th-large"></i> <span class="nav-label">Quality Report</span></a>
                     </li>
                 </ul>
-
             </div>
         </nav>
 
@@ -150,7 +166,7 @@
 
     <script src="{{ asset('js/plugins/chosen/chosen.jquery.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         div.dataTables_wrapper div.dataTables_length label {
