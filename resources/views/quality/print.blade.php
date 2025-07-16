@@ -383,7 +383,7 @@
             @php
                 $qualityItems = [
                     ['parameter' => '1. % Moisture (weeds)', 'spec' => 'Based on agreed MC'],
-                    ['parameter' => '2. % Recovery (lab yield)', 'spec' => 'Based on agreed MC'],
+                    ['parameter' => '2. % Recovery (lab yield)', 'spec' => 'Based on Agreed Budget Yield'],
                     ['parameter' => '3. % Impurities', 'spec' => 'Maximum of 2.0%'],
                     ['parameter' => '4. CAW', 'spec' => 'Minimum 32%'],
                     ['parameter' => '5. CAW Ratio', 'spec' => 'Minimum 1.3'],

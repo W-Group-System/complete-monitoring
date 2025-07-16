@@ -157,9 +157,9 @@
                                                     }
                                                 @endphp
 
-                                                <td>{{ optional($grpo->quality_created)->agreed_mc }}</td>
-                                                <td>{{ optional($grpo->quality_created)->ocular_mc }}</td>
-                                                <td>{{ $Moisture ?? '' }}</td>
+                                                <td>{{!empty( optional($grpo->quality_created)->agreed_mc) ?  optional($grpo->quality_created)->agreed_mc . '%' : '' }}</td>
+                                                <td>{{ !empty(optional($grpo->quality_created)->ocular_mc) ? optional($grpo->quality_created)->ocular_mc . "%" : '' }}</td>
+                                                <td>{{ !empty($Moisture) ? $Moisture . "%" : '' }}</td>
                                                 <td>{{ $Caw ?? '' }}</td>
                                                 <td>{{ $CawRatio ?? '' }}</td>
                                                 <td>{{ $RecoveryLabYield ?? '' }}</td>
@@ -179,8 +179,8 @@
                                                         {{ $ViscosityCot }}
                                                     @endif
                                                 </td>
-                                                <td>{{ $Kgs ?? '' }}</td>
-                                                <td>{{ $Wgs ?? '' }}</td>
+                                                <td>{{ number_format($Kgs) ?? '' }}</td>
+                                                <td>{{ number_format($Wgs) ?? '' }}</td>
                                                 <td>{{ $Cgs ?? '' }}</td>
                                                 <td>{{ $NaCl ?? '' }}</td>
                                                 <td>{{ optional($grpo->quality_created)->remarks ?? '' }}</td>

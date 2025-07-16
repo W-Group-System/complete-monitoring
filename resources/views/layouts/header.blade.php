@@ -86,12 +86,39 @@
                             <a href="{{ url('/quality_approval') }}">Quality Result Approval</a>
                         </li>
                     @endif
-                    @if (auth()->user()->position == "Plant Analyst")
-                        <li class="{{ Request::is('quality') ? 'active' : '' }}">
-                            <a href="{{ url('/quality') }}"><i class="fa fa-th-large"></i> <span class="nav-label">Quality</span></a>
+                    @if (auth()->user() && auth()->user()->position == "Plant Analyst")
+                        <li class="{{ Request::is('quality*') ? 'active' : '' }}">
+                            <a href="#"><i class="fa fa-th-large"></i> 
+                                <span class="nav-label">Quality</span> <span class="fa arrow"></span>
+                            </a>
+                             <ul class="nav nav-second-level">
+                                <li class="{{ Request::is('quality') ? 'active' : '' }}">
+                                    <a href="{{ url('/quality') }}">
+                                        <i class="fa fa-th-large"></i> 
+                                        <span class="nav-label">For Request</span>
+                                    </a>
+                                </li>
+                                <li class="{{ Request::is('for_approval') ? 'active' : '' }}">
+                                    <a href="{{ url('/for_approval') }}">
+                                        <i class="fa fa-th-large"></i> 
+                                        <span class="nav-label">For Approval</span>
+                                    </a>
+                                </li>
+                                <li class="{{ Request::is('returned_quality') ? 'active' : '' }}">
+                                    <a href="{{ url('/returned_quality') }}">
+                                        <i class="fa fa-th-large"></i> 
+                                        <span class="nav-label">Returned</span>
+                                    </a>
+                                </li>
+                                 <li class="{{ Request::is('approved_quality') ? 'active' : '' }}">
+                                    <a href="{{ url('/approved_quality') }}">
+                                        <i class="fa fa-th-large"></i> 
+                                        <span class="nav-label">Approved</span>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                     @endif
-                    
                     <li class="{{ Request::is('qualityReport') ? 'active' : '' }}">
                         <a href="{{ url('/qualityReport') }}"><i class="fa fa-th-large"></i> <span class="nav-label">Quality Report</span></a>
                     </li>

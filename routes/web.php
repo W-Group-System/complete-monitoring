@@ -77,9 +77,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/quality/edit/{id}','QualityController@quality_edit');
     Route::get('/print_qiality_report/{id}', 'QualityController@print');
     Route::get('/quality_approval', 'QualityController@quality_approval');
+    Route::get('/returned_quality', 'QualityController@returnedQuality');
+    Route::get('/approved_quality', 'QualityController@approvedQuality');
+    Route::get('/for_approval', 'QualityController@approvalQuality');
     Route::post('/ApproveQuality/{id}', 'QualityController@ApproveQuality');
     Route::post('/DisapproveQuality/{id}', 'QualityController@DisapproveQuality');
     Route::get('/qualityReport','QualityController@qualityReport');
+    Route::post('/ApproveAllQuality','QualityController@approveAll');
 
     // Route::get('/home','UserController@index');
 

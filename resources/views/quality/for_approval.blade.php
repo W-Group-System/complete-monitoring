@@ -16,7 +16,10 @@
                     <div class="ibox-content">
                         <div class="wrapper wrapper-content animated fadeIn">
                             <div class="row">
-                                <div class="table-responsive" >
+                                <div class="table-responsive">
+                                    @if($grpos->filter(function($g) { return $g->quality_created !== null; })->count())
+                                        <button id="approveAllBtn" class="btn btn-success mb-2">Approve All</button>
+                                    @endif
                                     <table class="table table-striped table-bordered table-hover tablewithSearch" >
                                         <thead>
                                              <tr>
@@ -34,10 +37,11 @@
                                             <tr> 
                                                 <td style="center">
                                                     @if ($grpo->quality_created)
-                                                        <button type="button" class="btn btn-success btn-rounded" data-toggle="modal" data-target="#editQuality{{ $grpo->DocNum }}">Edit</button>
-                                                        <a target='_blank' href="{{ url('print_qiality_report', $grpo->DocNum) }}" class="btn btn-danger btn-rounded" >Print</a>
+                                                        <input type="hidden" class="qualityId" value="{{ $grpo->quality_created->id }}">
+                                                        {{-- <button type="button" class="btn btn-success btn-rounded" data-toggle="modal" data-target="#editQuality{{ $grpo->DocNum }}">Edit</button> --}}
+                                                        <a target='_blank' href="{{ url('print_qiality_report', $grpo->DocNum) }}" class="btn btn-danger btn-rounded" >View</a>
                                                         <button type="button" class="btn btn-info btn-rounded approveQuality" data-id="{{ $grpo->quality_created->id }}">Approve</button>
-                                                        <button type="button" class="btn btn-warning btn-rounded disapproveQuality" data-id="{{ $grpo->quality_created->id }}">Disapprove</button>
+                                                        <button type="button" class="btn btn-warning btn-rounded disapproveQuality" data-id="{{ $grpo->quality_created->id }}">Return</button>
                                                     @else 
                                                         <button type="button" class="btn btn-primary btn-rounded" data-toggle="modal" data-target="#editQuality{{ $grpo->DocNum }}">Edit</button>
                                                     @endif
@@ -108,8 +112,8 @@
         var disapproveUrl = "{{ url('DisapproveQuality') }}/" + qualityId;
 
         Swal.fire({
-            title: "Disapprove Quality Result",
-            text: "Please provide your reason for disapproval.",
+            title: "Returned Quality Result",
+            text: "Please provide your reason for return.",
             icon: "warning",
             input: 'textarea',
             inputPlaceholder: 'Enter your remarks here...',
@@ -119,7 +123,7 @@
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Disapprove",
+            confirmButtonText: "Return",
             cancelButtonText: "Cancel",
             preConfirm: (approve_remarks) => {
                 if (!approve_remarks) {
@@ -140,7 +144,7 @@
                     success: function(response) {
                         Swal.fire({
                             icon: 'success',
-                            title: 'Disapproved',
+                            title: 'Returned',
                             text: response.message,
                             showConfirmButton: false,
                             timer: 1500
@@ -152,10 +156,53 @@
                         Swal.fire({
                             icon: 'error',
                             title: 'Failed',
-                            text: 'An error occurred while disapproving.',
+                            text: 'An error occurred while returning.',
                         });
                     }
                 });
+            }
+        });
+    });
+
+    document.getElementById('approveAllBtn').addEventListener('click', function () {
+        let ids = [];
+
+        document.querySelectorAll('.qualityId').forEach(function (input) {
+            ids.push(input.value);
+        });
+
+        if (ids.length === 0) {
+            Swal.fire("No items to approve", "", "info");
+            return;
+        }
+
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You are about to approve all quality records.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#28a745",
+            confirmButtonText: "Yes, approve all!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch("{{ url('ApproveAllQuality') }}", {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ ids: ids })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.success){
+                        Swal.fire("Approved!", "All selected records have been approved.", "success")
+                            .then(() => location.reload());
+                    } else {
+                        Swal.fire("Error", "Something went wrong.", "error");
+                    }
+                })
+                .catch(() => Swal.fire("Error", "Something went wrong.", "error"));
             }
         });
     });
