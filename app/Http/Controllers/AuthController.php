@@ -28,6 +28,8 @@ class AuthController extends Controller
 
          if (auth()->user()->position === 'Plant Analyst') {
             return redirect('/quality');
+        } elseif (auth()->user()->position === 'QC Senior Supervisor') {
+            return redirect('/quality_approval');
         }
 
         session(['api_token' => $token]);

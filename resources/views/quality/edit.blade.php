@@ -241,12 +241,18 @@
                                 ];
                             @endphp
                             @php
-                                $testingMap = collect(optional($grpo->quality_created)->chemical_testings)->keyBy('parameter');
+                                $testingMap = collect(optional($grpo->quality_created)->chemical_testings)
+                                    ->mapWithKeys(function ($item) {
+                                        $key = trim($item->parameter ?? '') . '|' . trim($item->specification ?? '');
+                                        return [$key => $item];
+                                    });
                             @endphp
                             @foreach ($qualityItems as $item)
                                 @php
-                                    $param = $item['parameter'];
-                                    $stored = $testingMap[$param] ?? null;
+                                    $param = trim($item['parameter']);
+                                    $spec = trim($item['spec']);
+                                    $key = $param . '|' . $spec;
+                                    $stored = $testingMap[$key] ?? null;
                                 @endphp
                                 <div class="col-md-12 mb-2">
                                     <div class="row mb-2 align-items-center">

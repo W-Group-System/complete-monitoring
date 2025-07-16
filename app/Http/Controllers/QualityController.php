@@ -151,9 +151,37 @@ class QualityController extends Controller
     {
         $approveQuality = Quality::findOrFail($id);
         $approveQuality->status = "Disapproved";
+        $approveQuality->approve_remarks = $request->input('approve_remarks'); 
         $approveQuality->approved_by = auth()->user()->id;
         $approveQuality->save();
         return response()->json(['message' => 'Quality Request Disapproved.']);
+    }
+    public function qualityReport(Request $request)
+    {
+        $search = $request->input('search');
+        $fromDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        $pendingGrpoNos = Quality::on('mysql')
+        ->where('status', 'Approved')
+        ->pluck('grpo_no')
+        ->toArray();
+
+         $grpos = OPDN::whereIn('DocNum', $pendingGrpoNos)
+            ->whereBetween('DocDate', [$fromDate, $endDate])
+            ->when($search, function ($query) use ($search) {
+                $terms = explode(' ', $search);
+                foreach ($terms as $term) {
+                    $query->where(function($q) use ($term) {
+                        $q->where('DocNum', 'LIKE', "%{$term}%")
+                            ->orWhere('NumAtCard', 'LIKE', "%{$term}%")
+                            ->orWhere('CardName', 'LIKE', "%{$term}%");
+                    });
+                }
+            })
+        ->orderBy('DocDate', 'desc')
+        ->paginate(10);
+         return view('quality.quality_report', compact('grpos', 'search'));
     }
 
     // public function quality_edit (Request $request, $id)

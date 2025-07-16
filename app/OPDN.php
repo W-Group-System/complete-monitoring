@@ -91,4 +91,9 @@ class OPDN extends Model
      {
         return $this->hasOne(Quality::class, 'grpo_no', 'DocNum');
      }
+     public function quality_created_approved()
+     {
+        return $this->hasOne(Quality::class, 'grpo_no', 'DocNum')
+                ->where('status', 'Approved');
+     }
 }

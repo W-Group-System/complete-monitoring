@@ -121,23 +121,23 @@
                                             $apDownPaymentLinesTotal = 0;
                                             $downpaymentDate = null;
 
-                                            $moistureResult = optional(optional($grpo->quality_created)->chemical_testings)
+                                            $moistureResult = optional(optional($grpo->quality_created_approved)->chemical_testings)
                                                 ->first(function ($item) {
                                                     return stripos($item->parameter, 'moisture') !== false;
                                                 })->result ?? null;
-                                            $labYieldResult = optional(optional($grpo->quality_created)->chemical_testings)
+                                            $labYieldResult = optional(optional($grpo->quality_created_approved)->chemical_testings)
                                                 ->first(function ($item) {
                                                     return stripos($item->parameter, 'lab yield') !== false;
                                                 })->result ?? null;
-                                            $calGelResult = optional(optional($grpo->quality_created)->chemical_testings)
+                                            $calGelResult = optional(optional($grpo->quality_created_approved)->chemical_testings)
                                                 ->first(function ($item) {
                                                     return stripos($item->parameter, 'Calcium') !== false;
                                                 })->result ?? null;
-                                            $potGelResult = optional(optional($grpo->quality_created)->chemical_testings)
+                                            $potGelResult = optional(optional($grpo->quality_created_approved)->chemical_testings)
                                                 ->first(function ($item) {
                                                     return stripos($item->parameter, 'Potassium') !== false;
                                                 })->result ?? null;
-                                            $viscousResult = optional(optional($grpo->quality_created)->chemical_testings)
+                                            $viscousResult = optional(optional($grpo->quality_created_approved)->chemical_testings)
                                                 ->first(function ($item) {
                                                     return stripos($item->parameter, 'Viscosity') !== false;
                                                 })->result ?? null;
@@ -255,7 +255,7 @@
                                                 <th>{{number_format(($grpo->grpoLines->first()->Price - max($McDeductionPhp, 0) ) + (($totalFreightPo + $totalTruckingPo) / $ArrivalWt),2)}}
                                                 </th>
                                                 {{-- <td>{{ optional($grpo->qualityResult)->U_OCULARMC }}</td> --}}
-                                                <td>{{ optional($grpo->quality_created)->ocular_mc }}</td>
+                                                <td>{{ optional($grpo->quality_created_approved)->ocular_mc }}</td>
                                                 {{-- <td>{{ optional($grpo->qualityResult)->U_MOIST }}</td> --}}
                                                 <td>{{ $moistureResult }}</td>
                                                 {{-- <td>{{ optional($grpo->qualityResult)->U_LABYIELD }}</td> --}}
