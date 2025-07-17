@@ -74,7 +74,7 @@ class QualityController extends Controller
         $search = $request->input('search');
 
         $approvalGrpoNos = Quality::on('mysql')
-        ->where('status', 'Approved')
+        ->where('status', 'Pending')
         ->pluck('grpo_no')
         ->toArray();
 
