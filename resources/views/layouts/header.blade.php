@@ -63,7 +63,7 @@
                             <span class="clear"> <span class="block m-t-xs"> <strong class="font-bold">{{ auth()->user()->name }}</strong>
                         </div>
                     </li>
-                    @if (auth()->user()->position != "Plant Analyst" && auth()->user()->position != "QC Senior Supervisor")
+                    @can('access complete monitoring')
                         <li class="{{ Request::is('home') ? 'active' : '' }}">
                             <a href="{{ url('/home') }}"><i class="fa fa-th-large"></i> <span class="nav-label">Complete Monitoring</span></a>
                         </li>
@@ -81,12 +81,13 @@
                                 </li>
                             </ul>
                         </li>
-                    @elseif (auth()->user()->position == "QC Senior Supervisor")
+                    @endcan
+                    @can('access quality approval')
                         <li class="{{ Request::is('quality_approval') ? 'active' : '' }}">
                             <a href="{{ url('/quality_approval') }}">Quality Result Approval</a>
                         </li>
-                    @endif
-                    @if (auth()->user() && auth()->user()->position == "Plant Analyst")
+                    @endcan
+                    @can('access quality')
                         <li class="{{ Request::is('quality*') ? 'active' : '' }}">
                             <a href="#"><i class="fa fa-th-large"></i> 
                                 <span class="nav-label">Quality</span> <span class="fa arrow"></span>
@@ -118,10 +119,12 @@
                                 </li>
                             </ul>
                         </li>
-                    @endif
-                    <li class="{{ Request::is('qualityReport') ? 'active' : '' }}">
+                    @endcan
+                    @can('access quality report')
+                        <li class="{{ Request::is('qualityReport') ? 'active' : '' }}">
                         <a href="{{ url('/qualityReport') }}"><i class="fa fa-th-large"></i> <span class="nav-label">Quality Report</span></a>
                     </li>
+                    @endcan
                 </ul>
             </div>
         </nav>
