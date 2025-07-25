@@ -1,10 +1,10 @@
-<?php
-
+<?php 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
+use Spatie\Permission\Models\Role as SpatieRole;
 
-class Role extends Model
+class Role extends SpatieRole
 {
-
+    protected $connection = 'system1_db';
+    protected $guard_name = 'web';
 }
