@@ -189,7 +189,11 @@
                                             @endforeach
                                         </tbody>
                                     </table>
-                                    {!! $grpos->appends(['search' => $search])->links() !!}
+                                    {!! $grpos->appends([
+                                        'search' => $search,
+                                        'start_date' => $fromDate,
+                                        'end_date' => $endDate
+                                    ])->links() !!}
                                 </div>
                             </div>
                         </div>

@@ -256,7 +256,7 @@ class QualityController extends Controller
             })
         ->orderBy('DocDate', 'desc')
         ->paginate(10);
-         return view('quality.quality_report', compact('grpos', 'search'));
+         return view('quality.quality_report', compact('grpos', 'search','fromDate','endDate'));
     }
 
     public function approveAll(Request $request)
