@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 use App\Appearance;
+use App\AuditLog;
+use App\CccQualityApprover;
 use App\ChemicalTesting;
 use App\Fom;
 use App\OPDN;
+use App\OPDN_CCC;
 use App\Quality;
 use App\Color;
+use App\QualityApproverSetup;
 use App\Sand;
 use PDF;
 use Illuminate\Http\Request;
@@ -48,13 +52,19 @@ class QualityController extends Controller
     public function returnedQuality(Request $request)
     {
         $search = $request->input('search');
+        $model = null;
 
         $returnedGrpoNos = Quality::on('mysql')
         ->where('status', 'Returned')
         ->pluck('grpo_no')
         ->toArray();
 
-         $grpos = OPDN::whereIn('DocNum', $returnedGrpoNos)
+        if ($request->is('returned_quality')) {
+            $model = OPDN::query();
+        } elseif ($request->is('ccc_returned_quality')) {
+            $model = OPDN_CCC::query();
+        }
+         $grpos = $model->whereIn('DocNum', $returnedGrpoNos)
             ->when($search, function ($query) use ($search) {
                 $terms = explode(' ', $search);
                 foreach ($terms as $term) {
@@ -72,13 +82,19 @@ class QualityController extends Controller
     public function approvalQuality(Request $request)
     {
         $search = $request->input('search');
+        $model = null;
 
         $approvalGrpoNos = Quality::on('mysql')
         ->where('status', 'Pending')
         ->pluck('grpo_no')
         ->toArray();
 
-         $grpos = OPDN::whereIn('DocNum', $approvalGrpoNos)
+        if ($request->is('for_approval')) {
+            $model = OPDN::query();
+        } elseif ($request->is('ccc_for_approval')) {
+            $model = OPDN_CCC::query();
+        }
+         $grpos = $model->whereIn('DocNum', $approvalGrpoNos)
             ->when($search, function ($query) use ($search) {
                 $terms = explode(' ', $search);
                 foreach ($terms as $term) {
@@ -96,13 +112,20 @@ class QualityController extends Controller
     public function approvedQuality(Request $request)
     {
         $search = $request->input('search');
+        $model = null;
 
         $approvedGrpoNos = Quality::on('mysql')
         ->where('status', 'Approved')
         ->pluck('grpo_no')
         ->toArray();
 
-         $grpos = OPDN::whereIn('DocNum', $approvedGrpoNos)
+        if ($request->is('approved_quality')) {
+            $model = OPDN::query();
+        } elseif ($request->is('ccc_approved_quality')) {
+            $model = OPDN_CCC::query();
+        }
+
+         $grpos = $model->whereIn('DocNum', $approvedGrpoNos)
             ->when($search, function ($query) use ($search) {
                 $terms = explode(' ', $search);
                 foreach ($terms as $term) {
@@ -131,6 +154,7 @@ class QualityController extends Controller
         $quality->ice = $request->ice_ice;
         $quality->moss = $request->moss;
         $quality->status = "Pending";
+        $quality->company = "WHI";
         $quality->requested_by = auth()->user()->id;
         $quality->save();
 
@@ -236,27 +260,72 @@ class QualityController extends Controller
         $search = $request->input('search');
         $fromDate = $request->input('start_date');
         $endDate = $request->input('end_date');
+        $supplierFilter = $request->input('supplier');
+        $companyFilter = $request->input('company', 'All');
 
         $pendingGrpoNos = Quality::on('mysql')
-        ->where('status', 'Approved')
-        ->pluck('grpo_no')
-        ->toArray();
+            ->where('status', 'Approved')
+            ->pluck('grpo_no')
+            ->toArray();
 
-         $grpos = OPDN::whereIn('DocNum', $pendingGrpoNos)
-            ->whereBetween('DocDate', [$fromDate, $endDate])
-            ->when($search, function ($query) use ($search) {
-                $terms = explode(' ', $search);
-                foreach ($terms as $term) {
-                    $query->where(function($q) use ($term) {
-                        $q->where('DocNum', 'LIKE', "%{$term}%")
-                            ->orWhere('NumAtCard', 'LIKE', "%{$term}%")
-                            ->orWhere('CardName', 'LIKE', "%{$term}%");
-                    });
-                }
-            })
-        ->orderBy('DocDate', 'desc')
-        ->paginate(10);
-         return view('quality.quality_report', compact('grpos', 'search','fromDate','endDate'));
+        $grpos = collect();
+
+        if ($companyFilter === 'WHI' || $companyFilter === 'All') {
+            $grposWHI = OPDN::whereIn('DocNum', $pendingGrpoNos)
+                ->whereBetween('DocDate', [$fromDate, $endDate])
+                ->where('CANCELED', '!=', 'Y')
+                ->when($supplierFilter, fn($q) => $q->where('CardName', $supplierFilter))
+                ->when($search, function ($query) use ($search) {
+                    $terms = explode(' ', $search);
+                    foreach ($terms as $term) {
+                        $query->where(function($q) use ($term) {
+                            $q->where('DocNum', 'LIKE', "%{$term}%")
+                                ->orWhere('NumAtCard', 'LIKE', "%{$term}%")
+                                ->orWhere('CardName', 'LIKE', "%{$term}%");
+                        });
+                    }
+                })
+                ->orderBy('DocDate', 'desc')
+                ->get();
+
+            $grpos = $grpos->concat($grposWHI);
+        }
+
+        if ($companyFilter === 'CCC' || $companyFilter === 'All') {
+            $grposCCC = OPDN_CCC::whereIn('DocNum', $pendingGrpoNos)
+                ->whereBetween('DocDate', [$fromDate, $endDate])
+                ->when($supplierFilter, fn($q) => $q->where('CardName', $supplierFilter))
+                ->when($search, function ($query) use ($search) {
+                    $terms = explode(' ', $search);
+                    foreach ($terms as $term) {
+                        $query->where(function($q) use ($term) {
+                            $q->where('DocNum', 'LIKE', "%{$term}%")
+                                ->orWhere('NumAtCard', 'LIKE', "%{$term}%")
+                                ->orWhere('CardName', 'LIKE', "%{$term}%");
+                        });
+                    }
+                })
+                ->orderBy('DocDate', 'desc')
+                ->get();
+
+            $grpos = $grpos->concat($grposCCC);
+        }
+        $grpos = $grpos->sortByDesc('DocDate')->values();
+        //  $grpos = OPDN::whereIn('DocNum', $pendingGrpoNos)
+        //     ->whereBetween('DocDate', [$fromDate, $endDate])
+        //     ->when($search, function ($query) use ($search) {
+        //         $terms = explode(' ', $search);
+        //         foreach ($terms as $term) {
+        //             $query->where(function($q) use ($term) {
+        //                 $q->where('DocNum', 'LIKE', "%{$term}%")
+        //                     ->orWhere('NumAtCard', 'LIKE', "%{$term}%")
+        //                     ->orWhere('CardName', 'LIKE', "%{$term}%");
+        //             });
+        //         }
+        //     })
+        // ->orderBy('DocDate', 'desc')
+        // ->paginate(10);
+         return view('quality.quality_report', compact('grpos', 'search','fromDate','endDate', 'companyFilter'));
     }
 
     public function approveAll(Request $request)
@@ -374,5 +443,291 @@ class QualityController extends Controller
         $canvas->text($rightX, $y1 + 24, $rightText3, $font, $size);
     });
         return $pdf->stream('Quality Report');
+    }
+    public function cccIndex(Request $request)
+    {
+        $search = $request->input('search');
+        $grpoNosWithStatus = Quality::on('mysql')
+        ->whereNotNull('status')
+        ->where('status', '!=', '')
+        ->pluck('grpo_no')
+        ->toArray();
+
+        $grpos = OPDN_CCC::where('OPDN.CANCELED',  '!=','Y')
+        ->whereHas('grpoLines', function ($query) {
+            $query->where(function ($q) {
+                $q->where('ItemCode', 'Seaweeds-COTTONII')
+                ->orWhere('ItemCode', 'Seaweeds - SPINOSUM');
+            });
+        })
+        ->whereNotIn('DocNum', $grpoNosWithStatus)
+        ->when($search, function ($query) use ($search, $request){
+            $terms = explode(' ',$search);
+            foreach ($terms as $term) {
+                $query->where(function($q) use ($term, $request){
+                    $q->where('DocNum', 'LIKE', "%{$term}%")
+                    ->orWhere('NumAtCard', 'LIKE', "%{$term}%")
+                    ->orWhere('CardName', 'LIKE', "%{$term}%");
+                });
+            }
+        })
+        ->orderBy('DocDate', 'desc')
+        ->paginate(10);
+         return view('quality.indexccc', compact('grpos', 'search'));
+    }
+    function cccPrint(Request $request, $id)
+    {
+        $details = OPDN_CCC::where('DocNum', '=', $id)->first();
+
+        View::share('details', $details);
+        $pdf = PDF::loadView('quality.cccprint', ['details' => $details]);
+        $pdf->setPaper('a4', 'portrait');
+        
+        $dompdf = $pdf->getDomPDF();
+
+    
+        return $pdf->stream('Quality Report');
+    }
+
+    public function ccc_quality_approval(Request $request)
+    {
+        $search = $request->input('search');
+
+        $approvals = CccQualityApprover::with('quality')
+        ->where('user_id', auth()->id())
+        ->where('status', 'Pending')
+        ->whereHas('quality', function ($q) {
+            $q->where('status', '!=', 'Returned'); 
+        })
+        ->get()
+        ->filter(function ($approver) {
+            $lowestPendingLevel = CccQualityApprover::where('quality_id', $approver->quality_id)
+                ->where('status', 'Pending')
+                ->min('level');
+
+            return $approver->level == $lowestPendingLevel;
+        });
+
+        $pendingGrpoNos = $approvals->pluck('quality.grpo_no')->toArray();
+
+        $grpos = OPDN_CCC::whereIn('DocNum', $pendingGrpoNos)
+        ->when($search, function ($query) use ($search) {
+            $terms = explode(' ', $search);
+            foreach ($terms as $term) {
+                $query->where(function($q) use ($term) {
+                    $q->where('DocNum', 'LIKE', "%{$term}%")
+                        ->orWhere('NumAtCard', 'LIKE', "%{$term}%")
+                        ->orWhere('CardName', 'LIKE', "%{$term}%");
+                });
+            }
+        })
+        ->orderBy('DocDate', 'desc')
+        ->paginate(10);
+        return view('quality.ccc_for_approval', compact('grpos', 'search'));
+    }
+    public function CccApproveQuality(Request $request, $id)
+    {
+        $quality = Quality::findOrFail($id);
+
+        $approver = CccQualityApprover::where('quality_id', $id)
+            ->where('user_id', auth()->id())
+            ->where('status', 'Pending')
+            ->firstOrFail();
+
+        $approver->status = "Approved";
+        $approver->approved_at = now();
+        $approver->remarks = $request->remarks; 
+        $approver->save();
+
+        
+         if ($quality->approvers()->where('status', 'Pending')->count() == 0) {
+            $quality->status = 'Approved';
+            $quality->save();
+        }
+
+        $logs = new AuditLog();
+        $logs->user_id = auth()->id();
+        $logs->action = "Approved Quality Request";
+        $logs->remarks = $request->remarks;
+        $logs->model_id = $quality->id;
+        $logs->save();
+        return response()->json(['message' => 'Quality Request Approved.']);
+    }
+    public function CccDisapproveQuality(Request $request, $id)
+    {
+        $quality = Quality::findOrFail($id);
+
+        $approver = CccQualityApprover::where('quality_id', $id)
+        ->where('user_id', auth()->id())
+        ->where('status', 'Pending')
+        ->firstOrFail();
+
+        $approver->status = "Returned";
+        $approver->approved_at = now();
+        $approver->remarks = $request->approve_remarks;
+        $approver->save();
+
+        $quality->status = "Returned";
+        $quality->approve_remarks = $request->approve_remarks;
+        $quality->approved_by = auth()->id();
+        $quality->save();
+
+        $logs = new AuditLog();
+        $logs->user_id = auth()->id();
+        $logs->action = "Returned Quality Request";
+        $logs->remarks = $request->approve_remarks;
+        $logs->model_id = $quality->id;
+        $logs->save();
+
+        CccQualityApprover::where('quality_id', $id)->update([
+            'status' => 'Pending',
+            'approved_at' => null,
+            'remarks' => null,
+        ]);
+
+        return response()->json(['message' => 'Quality Request Returned.']);
+    }
+    public function ccc_quality_edit(Request $request, $id)
+    {
+        $changes = [];
+
+        $quality = Quality::firstOrNew(['grpo_no' => $id]);
+        $isNew = !$quality->exists;
+        $oldValues = $quality->exists ? $quality->getOriginal() : [];
+
+        $quality->dr_rr = $request->dr_rr;
+        $quality->location_bin = $request->location_bin;
+        $quality->seaweeds = $request->seaweeds;
+        $quality->ocular_mc = $request->ocular_mc;
+        $quality->haghag = $request->haghag;
+        $quality->agreed_mc = $request->agreed_mc;
+        $quality->remarks = $request->quality_tab_remarks;
+        $quality->budget_yield = $request->budget_yield;
+        $quality->ice = $request->ice_ice;
+        $quality->moss = $request->moss;
+        $quality->status = "Pending";
+        $quality->company = "CCC";
+        $quality->requested_by = auth()->user()->id;
+        $quality->save();
+
+        if ($isNew) {
+            $changes[] = "Created Quality record (GRPO: {$quality->grpo_no})";
+        } else {
+            foreach ($quality->getChanges() as $field => $newValue) {
+                if ($field === "updated_at") continue;
+                $oldValue = $oldValues[$field] ?? null;
+                $changes[] = "[Quality] {$field} changed from '{$oldValue}' to '{$newValue}'";
+            }
+        }
+        if ($request->has('condition')) {
+            $color = Color::firstOrNew(['quality_id' => $quality->id]);
+            $oldValues = $color->exists ? $color->getOriginal() : [];
+            $color->condition = json_encode($request->condition); 
+            $color->remarks = $request->remarks;
+            $color->save();
+
+            foreach ($color->getChanges() as $field => $newValue) {
+                if ($field === "updated_at") continue;
+                $oldValue = $oldValues[$field] ?? null;
+                $changes[] = "[Color] {$field} changed from '{$oldValue}' to '{$newValue}'";
+            }
+        }
+        
+
+        if ($request->has('appearance_condition')) {
+            $appearance = Appearance::firstOrNew(['quality_id' => $quality->id]);
+            $oldValues = $appearance->exists ? $appearance->getOriginal() : [];
+            $appearance->condition = json_encode($request->appearance_condition); 
+            $appearance->remarks = $request->appearance_remarks;
+            $appearance->save();
+
+            foreach ($appearance->getChanges() as $field => $newValue) {
+                if ($field === "updated_at") continue;
+                $oldValue = $oldValues[$field] ?? null;
+                $changes[] = "[Appearance] {$field} changed from '{$oldValue}' to '{$newValue}'";
+            }
+        }
+
+        $parameters = $request->quality_parameter;
+        $specifications = $request->quality_specification;
+        $results = $request->quality_result;
+        $remarks = $request->quality_remarks;
+
+        for ($i = 0; $i < count($specifications); $i++) {
+            $param = $parameters[$i];
+            $spec = $specifications[$i];
+
+            $chemical_testing = ChemicalTesting::firstOrNew([
+                'quality_id' => $quality->id,
+                'parameter' => $param, 
+                'specification' => $spec,
+            ]);
+            $oldValues = $chemical_testing->exists ? $chemical_testing->getOriginal() : [];
+
+            $chemical_testing->parameter = $param;
+            $chemical_testing->specification = $spec;
+            $chemical_testing->result = $results[$i] ?? null;
+            $chemical_testing->remarks = $remarks[$i] ?? null;
+            $chemical_testing->save();
+
+            foreach ($chemical_testing->getChanges() as $field => $newValue) {
+                if ($field === "updated_at") continue;
+                $oldValue = $oldValues[$field] ?? null;
+                $changes[] = "[ChemicalTesting] {$field} changed from '{$oldValue}' to '{$newValue}' (Param: {$param}, Spec: {$spec})";
+            }
+
+        }
+
+        $foms = Fom::firstOrNew(['quality_id' => $quality->id]);
+        $oldValues = $foms->exists ? $foms->getOriginal() : [];
+        $foms->foreign_matter = $request->foms;
+        $foms->impurities = $request->foms_impurities;
+        $foms->weight = $request->foms_weight;
+        $foms->percent = $request->foms_percent;
+        $foms->parts_million = $request->foms_parts;
+        $foms->save();
+        foreach ($foms->getChanges() as $field => $newValue) {
+            if ($field === "updated_at") continue;
+            $oldValue = $oldValues[$field] ?? null;
+            $changes[] = "[Foms] {$field} changed from '{$oldValue}' to '{$newValue}'";
+        }
+
+        $sands = Sand::firstOrNew(['quality_id' => $quality->id]);
+        $oldValues = $sands->exists ? $sands->getOriginal() : [];
+        $sands->foreign_matter = $request->salts;
+        $sands->impurities = $request->salts_impurities;
+        $sands->weight = $request->salts_weight;
+        $sands->percent = $request->salts_percent;
+        $sands->parts_million = $request->salts_parts;
+        $sands->save();
+
+        foreach ($sands->getChanges() as $field => $newValue) {
+            if ($field === "updated_at") continue;
+            $oldValue = $oldValues[$field] ?? null;
+            $changes[] = "[Sand] {$field} changed from '{$oldValue}' to '{$newValue}'";
+        }
+
+        $setups = QualityApproverSetup::orderBy('level')->get();
+
+        foreach ($setups as $setup) {
+            $approver = CccQualityApprover::firstOrNew([
+                'quality_id' => $quality->id,
+                'user_id'    => $setup->user_id,
+            ]);
+
+            $approver->level = $setup->level;
+            $approver->user_id = $setup->user_id;
+            $approver->status = 'Pending';
+            $approver->approved_at = null;
+            $approver->remarks = null;
+            $approver->save();
+        }
+        $logs = new AuditLog();
+        $logs->user_id = auth()->user()->id;
+        $logs->action = $isNew ? "Created Quality Record" : "Updated Quality Record";
+        $logs->remarks = implode("; ", $changes);
+        $logs->model_id = $quality->id;
+        $logs->save();
+        return back()->with('success', 'Quality Edited.');
     }
 }

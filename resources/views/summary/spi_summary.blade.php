@@ -344,7 +344,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-<script>
+{{-- <script>
     const pieLabels = [];
     const pieData = [];
     const areaCottoni = {};
@@ -531,7 +531,7 @@
 
         XLSX.writeFile(wb, 'report.xlsx');
     }
-</script>
+</script> --}}
 
 @endsection
 

@@ -75,34 +75,34 @@
                                         <tr>
                                             <td style="
                                             background-color:
-                                                @if($supplier->OriginGroup == 'ZAMBO') skyblue;
-                                                @elseif($supplier->OriginGroup == 'PALAWAN') peachpuff;
-                                                @elseif($supplier->OriginGroup == 'MINDORO') pink;
-                                                @elseif($supplier->OriginGroup == 'IMPORT') orange;
-                                                @elseif($supplier->OriginGroup == 'ANTIQUE') GREEN;
+                                                @if(optional($supplier)->OriginGroup == 'ZAMBO') skyblue;
+                                                @elseif(optional($supplier)->OriginGroup == 'PALAWAN') peachpuff;
+                                                @elseif(optional($supplier)->OriginGroup == 'MINDORO') pink;
+                                                @elseif(optional($supplier)->OriginGroup == 'IMPORT') orange;
+                                                @elseif(optional($supplier)->OriginGroup == 'ANTIQUE') GREEN;
                                                 @else black;
                                                 @endif
                                             color:
-                                                @if($supplier->OriginGroup == 'OTHERS' || empty($supplier->OriginGroup)) white;
+                                                @if(optional($supplier)->OriginGroup == 'OTHERS' || empty(optional($supplier)->OriginGroup)) white;
                                                 @else black;
                                                 @endif
                                             ">
-                                            {{ $supplier->Name }}</td>
+                                            {{ optional($supplier)->Name }}</td>
                                             <td style="
                                                 background-color:
-                                                    @if($supplier->OriginGroup == 'ZAMBO') skyblue;
-                                                    @elseif($supplier->OriginGroup == 'PALAWAN') peachpuff;
-                                                    @elseif($supplier->OriginGroup == 'MINDORO') pink;
-                                                    @elseif($supplier->OriginGroup == 'IMPORT') orange;
-                                                    @elseif($supplier->OriginGroup == 'ANTIQUE') GREEN;
+                                                    @if(optional($supplier)->OriginGroup == 'ZAMBO') skyblue;
+                                                    @elseif(optional($supplier)->OriginGroup == 'PALAWAN') peachpuff;
+                                                    @elseif(optional($supplier)->OriginGroup == 'MINDORO') pink;
+                                                    @elseif(optional($supplier)->OriginGroup == 'IMPORT') orange;
+                                                    @elseif(optional($supplier)->OriginGroup == 'ANTIQUE') GREEN;
                                                     @else black;
                                                     @endif
                                                 color:
-                                                    @if($supplier->OriginGroup == 'OTHERS' || empty($supplier->OriginGroup)) white;
+                                                    @if(optional($supplier)->OriginGroup == 'OTHERS' || empty(optional($supplier)->OriginGroup)) white;
                                                     @else black;
                                                     @endif
                                             ">
-                                                {{ $supplier->OriginGroup }}
+                                                {{ optional($supplier)->OriginGroup }}
                                             </td>
                                                 @foreach ($months as $month)
                                                     @php
@@ -111,7 +111,8 @@
                                                             $docDate = \Carbon\Carbon::parse($grpo->DocDate);
                                                             $firstLine = $grpo->grpoLines->first();
                                                            
-                                                            return $docDate->format('m') == $monthNum && optional($firstLine)->ItemCode === 'SWDCOTPHIL';
+                                                            // return $docDate->format('m') == $monthNum && optional($firstLine)->ItemCode === 'Seaweeds-COTTONII';
+                                                            return $docDate->format('m') == $monthNum && in_array(optional($firstLine)->ItemCode, ['Seaweeds-COTTONII', 'SWDCOTPHIL']);
                                                         });
                                                         $totalArrivalWt = 0;
                                                         $totalWeightedAmount = 0;
@@ -237,11 +238,11 @@
                                 <table id="table2" class="table table-bordered table-striped table-hover tablewithSearch">
                                     <thead>
                                         <tr>
-                                            <th></th>
-                                            <th>DEL PRICE</th>
-                                            <th>BUYING PRICE</th>
-                                            <th>COTTONII</th>
-                                            <th></th>
+                                            <th class="text-center"></th>
+                                            <th class="text-center">DEL PRICE</th>
+                                            <th class="text-center">BUYING PRICE</th>
+                                            <th class="text-center">COTTONII</th>
+                                            <th class="text-center"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -274,13 +275,14 @@
                                             }
                                         @endphp
                                         <tr>
-                                            <td>
-                                                {{ $month }}
-                                            </td>
+                                            <td class="text-center">{{ $month }}</td>
                                             <td class="text-center">{{ $avgDelivery }}</td> 
                                             <td class="text-center">{{ $avgBuying }}</td> 
                                             <td class="text-center">{{ $avgCottoni }}</td> 
-                                            <td>{{ $buyingCottoni }}</td>
+                                            <td class="text-center">
+                                                {{ number_format(floatval(str_replace(',', '', $avgBuying)) * floatval(str_replace(',', '', $avgCottoni)), 2) }}
+                                            </td>
+                                            {{-- <td>{{ $buyingCottoni }}</td> --}}
                                         </tr>
                                         @endforeach
                                     </tbody>
@@ -370,7 +372,7 @@
                 $grpos = $supplier->opdn->filter(function($grpo) use ($monthNum) {
                     $docDate = \Carbon\Carbon::parse($grpo->DocDate);
                     $firstLine = $grpo->grpoLines->first();
-                    return $docDate->format('m') == $monthNum && optional($firstLine)->ItemCode === 'SWDCOTPHIL';
+                    return $docDate->format('m') == $monthNum && in_array(optional($firstLine)->ItemCode, ['Seaweeds-COTTONII', 'SWDCOTPHIL']);
                 });
 
                 foreach ($grpos as $grpo) {

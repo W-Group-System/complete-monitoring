@@ -3,9 +3,12 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class Quality extends Model
+class Quality extends Model implements Auditable
 {
+    use \OwenIt\Auditing\Auditable;
+
     protected $fillable = [
         'grpo_no',
         'dr_rr',
@@ -48,5 +51,17 @@ class Quality extends Model
     public function approvedBy()
     {
         return $this->belongsTo(User::class, 'approved_by', 'id');
+    }
+    public function approvers()
+    {
+        return $this->hasMany(CccQualityApprover::class);
+    }
+
+    public function nextApprover()
+    {
+        return $this->approvers()
+            ->where('status', 'Pending')
+            ->orderBy('level', 'asc')
+            ->first();
     }
 }

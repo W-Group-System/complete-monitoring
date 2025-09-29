@@ -8,16 +8,24 @@
                     <h4 class="ibox-title">
                         <div class="row">
                             <div class="col-lg-12">
-                                <div class="col-md-3" style="margin-top: 22px">
+                                {{-- <div class="col-md-3" style="margin-top: 22px">
                                     <form method="GET" action="{{ url('/qualityReport') }}" class="form-inline" style="margin-bottom: 15px;" onsubmit="show()">
                                         <div class="form-group">
                                             <input type="text" name="search" class="form-control" placeholder="Search" value="{{ request('search') }}">
                                         </div>
                                         <button type="submit" class="btn btn-primary">Search</button>
                                     </form>
-                                </div>
+                                </div> --}}
                                 <form method='GET' onsubmit='show();' enctype="multipart/form-data" >
                                  @csrf
+                                    <div class="col-md-2">
+                                        <label>Company</label>
+                                        <select class="chosen-select" name="company">
+                                            <option value="All" {{ ($companyFilter ?? 'All') == 'All' ? 'selected' : '' }}>All</option>
+                                            <option value="WHI" {{ $companyFilter == 'WHI' ? 'selected' : '' }}>WHI</option>
+                                            <option value="CCC" {{ $companyFilter == 'CCC' ? 'selected' : '' }}>CCC</option>
+                                        </select>
+                                    </div>
                                     <div class="col-md-3">
                                         <label>Start Date:</label>
                                         <input type="date" name="start_date" value="{{ Request::get('start_date') }}" class="form-control">
@@ -116,42 +124,83 @@
                                                     $NaCl = null;
 
                                                     if (is_array($chemicalTestings)) {
-                                                        foreach ($chemicalTestings as $test) {
-                                                            if (isset($test['parameter']) && strpos($test['parameter'], '% Recovery (lab yield)') !== false) {
-                                                                $RecoveryLabYield = $test['result'];
+                                                         if ($grpo->quality_created->company === "CCC") {
+                                                            foreach ($chemicalTestings as $test) {
+                                                                if (isset($test['parameter']) && strpos($test['parameter'], '% Recovery (lab yield)') !== false) {
+                                                                    $RecoveryLabYield = $test['result'];
+                                                                }
+                                                                if (isset($test['parameter']) && trim($test['parameter']) === '4. CAW') {
+                                                                    $Caw = $test['result'];
+                                                                }
+                                                                if (isset($test['parameter']) && trim($test['parameter']) === '5. CAW Ratio') {
+                                                                    $CawRatio = $test['result'];
+                                                                }
+                                                                if (isset($test['parameter']) && trim($test['parameter']) === '1. % Moisture (weeds)') {
+                                                                    $Moisture = $test['result'];
+                                                                }
+                                                                if (isset($test['specification']) && trim($test['specification']) === 'E. Cottonii:8 - 11 @1.5% at 60°C') {
+                                                                    $phCot = $test['result'];
+                                                                }
+                                                                if (isset($test['specification']) && trim($test['specification']) === 'E. Spinosum: 7.5 - 9.5 @ 2.0%, 60°C') {
+                                                                    $phSpi = $test['result'];
+                                                                }
+                                                                if (isset($test['specification']) && trim($test['specification']) === 'E. Cottonii - Min of 20cps @ 1.5%, 75°C') {
+                                                                    $ViscosityCot = $test['result'];
+                                                                }
+                                                                if (isset($test['specification']) && trim($test['specification']) === 'E. Spinosum: Min of 20 cps @ 2.0% w/w at 75°C') {
+                                                                    $ViscositySpi = $test['result'];
+                                                                }
+                                                                if (isset($test['parameter']) && trim($test['parameter']) === '9. Potassium Gel Strength') {
+                                                                    $Kgs = $test['result'];
+                                                                }
+                                                                if (isset($test['parameter']) && trim($test['parameter']) === '8. Water Gel Strength') {
+                                                                    $Wgs = $test['result'];
+                                                                }
+                                                                if (isset($test['parameter']) && trim($test['parameter']) === '10.  Calcium Gel Strength') {
+                                                                    $Cgs = $test['result'];
+                                                                }
+                                                                // if (isset($test['parameter']) && trim($test['parameter']) === '6. % Salt (NaCl)') {
+                                                                //     $NaCl = $test['result'];
+                                                                // }
                                                             }
-                                                            if (isset($test['parameter']) && trim($test['parameter']) === '4. CAW') {
-                                                                $Caw = $test['result'];
-                                                            }
-                                                            if (isset($test['parameter']) && trim($test['parameter']) === '5. CAW Ratio') {
-                                                                $CawRatio = $test['result'];
-                                                            }
-                                                            if (isset($test['parameter']) && trim($test['parameter']) === '1. % Moisture (weeds)') {
-                                                                $Moisture = $test['result'];
-                                                            }
-                                                            if (isset($test['specification']) && trim($test['specification']) === 'E. cottonii:8 - 11 @1.5% at 60°C') {
-                                                                $phCot = $test['result'];
-                                                            }
-                                                            if (isset($test['specification']) && trim($test['specification']) === 'E. spinosum: 7.5 - 9.5 @ 2.0%, 60°C') {
-                                                                $phSpi = $test['result'];
-                                                            }
-                                                            if (isset($test['specification']) && trim($test['specification']) === 'E. Cottonii - Min of 20cps @ 1.5%, 75°C') {
-                                                                $ViscosityCot = $test['result'];
-                                                            }
-                                                            if (isset($test['specification']) && trim($test['specification']) === 'E. spinosum: Minimum of 20 cps @ 2.0% w/w at 75°C') {
-                                                                $ViscositySpi = $test['result'];
-                                                            }
-                                                            if (isset($test['parameter']) && trim($test['parameter']) === '10. Potassium Gel Strength') {
-                                                                $Kgs = $test['result'];
-                                                            }
-                                                            if (isset($test['parameter']) && trim($test['parameter']) === '9. Water Gel Strength') {
-                                                                $Wgs = $test['result'];
-                                                            }
-                                                            if (isset($test['parameter']) && trim($test['parameter']) === '11.  Calcium Gel Strength') {
-                                                                $Cgs = $test['result'];
-                                                            }
-                                                            if (isset($test['parameter']) && trim($test['parameter']) === '6. % Salt (NaCl)') {
-                                                                $NaCl = $test['result'];
+                                                        } else {
+                                                            foreach ($chemicalTestings as $test) {
+                                                                if (isset($test['parameter']) && strpos($test['parameter'], '% Recovery (lab yield)') !== false) {
+                                                                    $RecoveryLabYield = $test['result'];
+                                                                }
+                                                                if (isset($test['parameter']) && trim($test['parameter']) === '4. CAW') {
+                                                                    $Caw = $test['result'];
+                                                                }
+                                                                if (isset($test['parameter']) && trim($test['parameter']) === '5. CAW Ratio') {
+                                                                    $CawRatio = $test['result'];
+                                                                }
+                                                                if (isset($test['parameter']) && trim($test['parameter']) === '1. % Moisture (weeds)') {
+                                                                    $Moisture = $test['result'];
+                                                                }
+                                                                if (isset($test['specification']) && trim($test['specification']) === 'E. cottonii:8 - 11 @1.5% at 60°C') {
+                                                                    $phCot = $test['result'];
+                                                                }
+                                                                if (isset($test['specification']) && trim($test['specification']) === 'E. spinosum: 7.5 - 9.5 @ 2.0%, 60°C') {
+                                                                    $phSpi = $test['result'];
+                                                                }
+                                                                if (isset($test['specification']) && trim($test['specification']) === 'E. Cottonii - Min of 20cps @ 1.5%, 75°C') {
+                                                                    $ViscosityCot = $test['result'];
+                                                                }
+                                                                if (isset($test['specification']) && trim($test['specification']) === 'E. spinosum: Minimum of 20 cps @ 2.0% w/w at 75°C') {
+                                                                    $ViscositySpi = $test['result'];
+                                                                }
+                                                                if (isset($test['parameter']) && trim($test['parameter']) === '10. Potassium Gel Strength') {
+                                                                    $Kgs = $test['result'];
+                                                                }
+                                                                if (isset($test['parameter']) && trim($test['parameter']) === '9. Water Gel Strength') {
+                                                                    $Wgs = $test['result'];
+                                                                }
+                                                                if (isset($test['parameter']) && trim($test['parameter']) === '11.  Calcium Gel Strength') {
+                                                                    $Cgs = $test['result'];
+                                                                }
+                                                                if (isset($test['parameter']) && trim($test['parameter']) === '6. % Salt (NaCl)') {
+                                                                    $NaCl = $test['result'];
+                                                                }
                                                             }
                                                         }
                                                     }
@@ -189,11 +238,11 @@
                                             @endforeach
                                         </tbody>
                                     </table>
-                                    {!! $grpos->appends([
+                                    {{-- {!! $grpos->appends([
                                         'search' => $search,
                                         'start_date' => $fromDate,
                                         'end_date' => $endDate
-                                    ])->links() !!}
+                                    ])->links() !!} --}}
                                 </div>
                             </div>
                         </div>
