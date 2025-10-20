@@ -10,6 +10,21 @@
         width: 100%;
         margin-bottom: 10px;
     }
+    .header-container table{
+        width:100%; 
+        border:1px solid black; 
+        border-collapse:collapse; 
+        text-align:center;
+        font-size:14px;
+    } 
+    .header-container table .imageLogo{
+        border:1px solid black; 
+        width:80px;
+    }
+    .header-container table .cccText{
+        border:1px solid black; 
+        font-weight:bold;
+    }
     .img {
         width: 90px;
         height: auto;
@@ -125,27 +140,12 @@
     }
     .signature-left,
     .signature-right {
-        width: 40%;
+        width: 24%;
         text-align: center;
         font-size: 12px;
         display: inline-block;
         vertical-align: top;
     }
-    .signature-line {
-        display: block;
-        border-bottom: 1px solid #000;
-        width: 100%;
-        margin: 5px 0;
-    }
-
-    .signature-left {
-        left: 10%;
-    }
-
-    .signature-right {
-        right: 10%;
-    }
-
     .signature-line {
         display: block;
         border-bottom: solid 1px #000;
@@ -166,8 +166,26 @@
 </style>
 
 <div class="header-container">
-    <img class="img" src="{{ asset('/img/whi_logo.png')}}" alt="Company Logo">
-    <div><strong>SEAWEEDS DELIVERY AND INSPECTION REPORT</strong></div>
+   <table>
+        <tr>
+            <td class="imageLogo" rowspan="2">
+                <img src="{{ asset('/img/ccc_logo.png')}}" alt="Company Logo" style="max-width:70px;">
+            </td>
+            <td rowspan="2">
+                <strong>CEBU CARRAGEENAN <br> CORPORATION</strong>
+            </td>
+            <td class="cccText">
+                SEAWEEDS DELIVERY QUALITY TEST RESULTS
+            </td>
+        </tr>
+        <tr>
+            <td style="border:1px solid black;">
+                FR-QCD-18 Rev08 (Effective Date: 08-Aug-25)
+            </td>
+        </tr>
+    </table>
+
+
 </div>
 
 <body>
@@ -383,18 +401,17 @@
             @php
                 $qualityItems = [
                     ['parameter' => '1. % Moisture (weeds)', 'spec' => 'Based on agreed MC'],
-                    ['parameter' => '2. % Recovery (lab yield)', 'spec' => 'Based on Agreed Budget Yield'],
+                    ['parameter' => '2. % Recovery (lab yield)', 'spec' => 'Based on Agreed Lab Yield'],
                     ['parameter' => '3. % Impurities', 'spec' => 'Maximum of 2.0%'],
-                    ['parameter' => '4. CAW', 'spec' => 'Minimum 32%'],
-                    ['parameter' => '5. CAW Ratio', 'spec' => 'Minimum 1.3'],
-                    ['parameter' => '6. % Salt (NaCl)', 'spec' => 'Maximum of 20%'],
-                    ['parameter' => '7. Viscosity', 'spec' => 'E. Cottonii - Min of 20cps @ 1.5%, 75°C'],
-                    ['parameter' => '', 'spec' => 'E. spinosum: Minimum of 20 cps @ 2.0% w/w at 75°C'],
-                    ['parameter' => '8. pH', 'spec' => 'E. cottonii:8 - 11 @1.5% at 60°C'],
-                    ['parameter' => '', 'spec' => 'E. spinosum: 7.5 - 9.5 @ 2.0%, 60°C'],
-                    ['parameter' => '9. Water Gel Strength', 'spec' => 'E. Cottonii - Min of 300g/cm² @ 1.5% w/w 20°C'],
-                    ['parameter' => '10. Potassium Gel Strength', 'spec' => 'E. cottonii:Minimum of 800 g/cm2; @ 1.5% 0.2% KCl at 20°C'],
-                    ['parameter' => '11.  Calcium Gel Strength', 'spec' => 'E. Spinosum - 20-80 g/cm² @ 2% 0.2% CaCI at 20°C'],
+                    ['parameter' => '4. % CAW', 'spec' => 'Minimum 32%'],
+                    ['parameter' => '5. CAW Ratio', 'spec' => 'Below 1.2 salted; above 1.4 is still acceptable'],
+                    ['parameter' => '6. Viscosity', 'spec' => 'E. Cottonii - Min of 20cps @ 1.5%, 75°C'],
+                    ['parameter' => '', 'spec' => 'E. Spinosum: Min of 20 cps @ 2.0% w/w at 75°C'],
+                    ['parameter' => '7. pH', 'spec' => 'E. Cottonii:8 - 11 @1.5% at 60°C'],
+                    ['parameter' => '', 'spec' => 'E. Spinosum: 7.5 - 9.5 @ 2.0%, 60°C'],
+                    ['parameter' => '8. Water Gel Strength', 'spec' => 'E. Cottonii - Min of 250g/cm² @ 1.5% w/w 20°C'],
+                    ['parameter' => '9. Potassium Gel Strength', 'spec' => 'E. Cottonii - Min of 660 g/cm2; @ 1.5% 0.2% KCl at 20°C'],
+                    ['parameter' => '10.  Calcium Gel Strength', 'spec' => 'E. Spinosum – Min of 20 g/cm² @ 2% 0.2% CaCI at 20°C'],
                 ];
             @endphp
             @php
@@ -438,40 +455,48 @@
             </tr>
             <tr>
                 <td>
-                    <div>1. Tie-ties/ FOM</div>
-                    <label class="checkbox-label-two">
-                        <input type="checkbox" class="checkbox-cell"
-                            {{ optional(optional($details->quality_created)->tie_tie)->foreign_matter == 'Present' ? 'checked' : '' }}>
-                        Present
-                    </label>
-                    <label class="checkbox-label-two">
-                        <input type="checkbox" class="checkbox-cell"
-                            {{ optional(optional($details->quality_created)->tie_tie)->foreign_matter == 'Absent' ? 'checked' : '' }}>
-                        Absent
-                    </label>
+                    <div>1. Tie-ties/ OFM</div>
+                    @php
+                        $storedFoms = json_decode(optional(optional($details->quality_created)->tie_tie)->foreign_matter ?? '[]', true) ?? [];
+                    @endphp
+
+                    @foreach (['Present', 'Present'] as $index => $option)
+                        <label class="checkbox-label-two">
+                            <input 
+                                type="checkbox" 
+                                class="checkbox-cell"
+                                {{ isset($storedFoms[$index]) && $storedFoms[$index] === $option ? 'checked' : '' }}>
+                            {{ $option }}
+                        </label>
+                    @endforeach
+
                 </td>
                 <td class="center">{{ optional(optional($details->quality_created)->tie_tie)->impurities}}</td>
                 <td class="center">{{ optional(optional($details->quality_created)->tie_tie)->weight}}</td>
-                <td class="center">{{ optional(optional($details->quality_created)->tie_tie)->percent}}</td>
+                <td class="center">{{ number_format(optional(optional($details->quality_created)->tie_tie)->percent)}}</td>
                 <td class="center">{{ number_format(optional(optional($details->quality_created)->tie_tie)->parts_million)}}</td>
             </tr>
             <tr>
                 <td>
-                    <div>1. Sand/ Salt</div>
-                    <label class="checkbox-label-two">
-                        <input type="checkbox" class="checkbox-cell"
-                            {{ optional(optional($details->quality_created)->sand)->foreign_matter == 'Present' ? 'checked' : '' }}>
-                        Present
-                    </label>
-                    <label class="checkbox-label-two">
-                        <input type="checkbox" class="checkbox-cell"
-                            {{ optional(optional($details->quality_created)->sand)->foreign_matter == 'Absent' ? 'checked' : '' }}>
-                        Absent
-                    </label>
+                    <div>2. Sand/ Salt</div>
+                    @php
+                        $storedSand = json_decode(optional(optional($details->quality_created)->sand)->foreign_matter ?? '[]', true) ?? [];
+                    @endphp
+
+                    @foreach (['Present', 'Present'] as $index => $option)
+                        <label class="checkbox-label-two">
+                            <input 
+                                type="checkbox" 
+                                class="checkbox-cell"
+                                {{ isset($storedSand[$index]) && $storedSand[$index] === $option ? 'checked' : '' }}>
+                            {{ $option }}
+                        </label>
+                    @endforeach
+
                 </td>
                 <td class="center">{{ optional(optional($details->quality_created)->sand)->impurities}}</td>
                 <td class="center">{{ optional(optional($details->quality_created)->sand)->weight}}</td>
-                <td class="center">{{ optional(optional($details->quality_created)->sand)->percent}}</td>
+                <td class="center">{{ number_format(optional(optional($details->quality_created)->sand)->percent) }}</td>
                 <td class="center">{{ number_format(optional(optional($details->quality_created)->sand)->parts_million)}}</td>
             </tr>
             <tr class="center">
@@ -480,7 +505,7 @@
                 </td>
                 <td class="center"></td>
                 <td class="center"></td>
-                <td class="center">{{ number_format(optional(optional($details->quality_created)->tie_tie)->percent + optional(optional($details->quality_created)->sand)->percent,4)}}</td>
+                <td class="center">{{ number_format(optional(optional($details->quality_created)->tie_tie)->percent + optional(optional($details->quality_created)->sand)->percent,2)}}</td>
                 <td class="center">{{ number_format(optional(optional($details->quality_created)->tie_tie)->parts_million + optional(optional($details->quality_created)->sand)->parts_million,2)}}</td>
             </tr>
         </table>
@@ -500,20 +525,32 @@
                 <div class="remarks-line">{!! $line !!}</div>
             @endforeach
         </div>
-            <div class="signature">
-                <div class="signature-left">
-                <span class="signature-label">Analyzed by:</span>
-                <span class="signature-line"></span>
-                <i>Seaweeds Analyst</i>
-            </div>
 
-            <div class="signature-right">
-                <span class="signature-label">Verified by:</span>
-                <span class="signature-line"></span>
-                <i>Senior QC Supervisor</i>
-            </div>
+    <div class="signature">
+        <div class="signature-left">
+            <span class="signature-label">Analyzed by:</span>
+            <span class="signature-line"></span>
+            <i>QC Analyst</i>
         </div>
 
+        <div class="signature-right">
+            <span class="signature-label">Checked by:</span>
+            <span class="signature-line"></span>
+            <i>Supervisor</i>
+        </div>
+
+        <div class="signature-right">
+            <span class="signature-label">Approved by:</span>
+            <span class="signature-line"></span>
+            <i>Plant Manager</i>
+        </div>
+
+        <div class="signature-left">
+            <span class="signature-label">Received by:</span>
+            <span class="signature-line"></span>
+            <i>SW Purchasing</i>
+        </div>
+        
     </div>
 </body>
 

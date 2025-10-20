@@ -7,7 +7,7 @@
                 <div class="card-body">
                     <h4 class="ibox-title">
                         Summary Suppliers
-                        <button type="button" class="btn btn-md btn-outline-primary"  data-toggle="modal" data-target="#NewGroup">New</button>
+                        <button type="button" class="btn btn-md btn-outline-primary"  data-toggle="modal" data-target="#NewGroupCCC">New</button>
                     </h4>
                     <div class="ibox-content">
                         <div class="wrapper wrapper-content animated fadeIn">
@@ -28,7 +28,7 @@
                                             <tr> 
                                                 <td style="center">
                                                     <button type="button" class="btn btn-primary btn-rounded" data-toggle="modal" data-target="#editSummarySupplier{{ $supplier->id }}"> Edit</button>
-                                                    <form action="{{ url('deleteSetup', $supplier->id) }}" 
+                                                    <form action="{{ url('deleteCccSetup', $supplier->id) }}" 
                                                         method="POST" 
                                                         style="display: inline-block;"
                                                         onsubmit="return confirm('Are you sure you want to delete this supplier?');">
@@ -56,9 +56,9 @@
         </div>
     </div>
 </div>
-@include('summary_supplier.create')
+@include('summary_supplier.create_ccc')
 @foreach ($suppliers as $supplier)
-    @include('summary_supplier.edit')
+    @include('summary_supplier.edit_ccc')
 @endforeach
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>

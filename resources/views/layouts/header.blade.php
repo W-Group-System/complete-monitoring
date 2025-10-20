@@ -15,7 +15,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>INSPINIA | Dashboard</title>
+    <title>Complete Monitoring</title>
+    <link rel="icon" type="image/x-icon" href="{{URL::asset('/img/cm.png')}}">
+
 
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('font-awesome/css/font-awesome.css') }}">
@@ -77,7 +79,10 @@
                                     <a href="{{ url('/spi_summary') }}">Spinosum Summary And Charts</a>
                                 </li>
                                 <li class="{{ Request::is('summary_suppliers') ? 'active' : '' }}">
-                                    <a href="{{ url('/summary_suppliers') }}">Suppliers Summary Setup</a>
+                                    <a href="{{ url('/summary_suppliers') }}">WHI Suppliers Summary Setup</a>
+                                </li>
+                                <li class="{{ Request::is('ccc_summary_suppliers') ? 'active' : '' }}">
+                                    <a href="{{ url('/ccc_summary_suppliers') }}">CCC Suppliers Summary Setup</a>
                                 </li>
                             </ul>
                         </li>
@@ -87,10 +92,15 @@
                             <a href="{{ url('/quality_approval') }}">Quality Result Approval</a>
                         </li>
                     @endcan
+                    @can('access ccc quality approval')
+                        <li class="{{ Request::is('ccc_quality_approval') ? 'active' : '' }}">
+                            <a href="{{ url('/ccc_quality_approval') }}">CCC Quality Result Approval</a>
+                        </li>
+                    @endcan
                     @can('access quality')
-                        <li class="{{ Request::is('quality*') ? 'active' : '' }}">
+                        <li class="{{ Request::is('quality') ? 'active' : '' }}">
                             <a href="#"><i class="fa fa-th-large"></i> 
-                                <span class="nav-label">Quality</span> <span class="fa arrow"></span>
+                                <span class="nav-label">WHI Quality</span> <span class="fa arrow"></span>
                             </a>
                              <ul class="nav nav-second-level">
                                 <li class="{{ Request::is('quality') ? 'active' : '' }}">
@@ -111,8 +121,41 @@
                                         <span class="nav-label">Returned</span>
                                     </a>
                                 </li>
-                                 <li class="{{ Request::is('approved_quality') ? 'active' : '' }}">
+                                 <li class="{{ Request::is('/approved_quality') ? 'active' : '' }}">
                                     <a href="{{ url('/approved_quality') }}">
+                                        <i class="fa fa-th-large"></i> 
+                                        <span class="nav-label">Approved</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    @endcan
+                    @can('access ccc quality')
+                        <li class="{{ Request::is('cccQuality*') ? 'active' : '' }}">
+                            <a href="#"><i class="fa fa-th-large"></i> 
+                                <span class="nav-label">CCC Quality</span> <span class="fa arrow"></span>
+                            </a>
+                             <ul class="nav nav-second-level">
+                                <li class="{{ Request::is('cccQuality') ? 'active' : '' }}">
+                                    <a href="{{ url('/cccQuality') }}">
+                                        <i class="fa fa-th-large"></i> 
+                                        <span class="nav-label">For Request</span>
+                                    </a>
+                                </li>
+                                <li class="{{ Request::is('ccc_for_approval') ? 'active' : '' }}">
+                                    <a href="{{ url('/ccc_for_approval') }}">
+                                        <i class="fa fa-th-large"></i> 
+                                        <span class="nav-label">For Approval</span>
+                                    </a>
+                                </li>
+                                <li class="{{ Request::is('ccc_returned_quality') ? 'active' : '' }}">
+                                    <a href="{{ url('/ccc_returned_quality') }}">
+                                        <i class="fa fa-th-large"></i> 
+                                        <span class="nav-label">Returned</span>
+                                    </a>
+                                </li>
+                                 <li class="{{ Request::is('ccc_approved_quality') ? 'active' : '' }}">
+                                    <a href="{{ url('/ccc_approved_quality') }}">
                                         <i class="fa fa-th-large"></i> 
                                         <span class="nav-label">Approved</span>
                                     </a>
@@ -123,6 +166,11 @@
                     @can('access quality report')
                         <li class="{{ Request::is('qualityReport') ? 'active' : '' }}">
                         <a href="{{ url('/qualityReport') }}"><i class="fa fa-th-large"></i> <span class="nav-label">Quality Report</span></a>
+                    </li>
+                    @endcan
+                    @can('access quality approval setup')
+                        <li class="{{ Request::is('quality_approval_setup') ? 'active' : '' }}">
+                        <a href="{{ url('/quality_approval_setup') }}"><i class="fa fa-th-large"></i> <span class="nav-label">Quality Approver Setup</span></a>
                     </li>
                     @endcan
                 </ul>
@@ -158,6 +206,9 @@
     <script src="{{ asset('js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('js/plugins/metisMenu/jquery.metisMenu.js') }}"></script>
     <script src="{{ asset('js/plugins/slimscroll/jquery.slimscroll.min.js') }}"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
     <!-- Flot -->
     <script src="{{ asset('js/plugins/flot/jquery.flot.js') }}"></script>

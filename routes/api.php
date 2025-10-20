@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Spatie\Permission\PermissionRegistrar;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,3 +17,15 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::post('/refresh-permissions', function (Request $request) {
+    $incoming = $request->header('X-Secret-Key');
+    $expected = env('SYSTEM_SYNC_KEY');
+
+    return response()->json([
+        'incoming' => $incoming,
+        'expected' => $expected,
+    ]);
+});
+
+Route::get('/salesorder', 'QualityController@salesorder');

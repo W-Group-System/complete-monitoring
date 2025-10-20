@@ -26,11 +26,16 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-         if (auth()->user()->position === 'Plant Analyst') {
+        if ($user->can('access quality')) {
             return redirect('/quality');
-        } elseif (auth()->user()->position === 'QC Senior Supervisor') {
+        } if ($user->can('access ccc quality')) {
+            return redirect('/cccQuality');
+        } elseif ($user->can('access quality approval')) {
             return redirect('/quality_approval');
+        } elseif ($user->can('access ccc quality approval')) {
+            return redirect('/ccc_quality_approval');
         }
+
 
         session(['api_token' => $token]);
         return redirect('/home');

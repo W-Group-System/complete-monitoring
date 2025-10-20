@@ -67,31 +67,59 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/roles','RoleController@index');
 
     Route::middleware(['can:access complete monitoring'])->group(function(){
-         Route::get('/home','HomeController@index');
+        Route::get('/home','HomeController@index');
         Route::get('/cott_summary','SummaryController@index');
         Route::get('/spi_summary','SummaryController@index');
         Route::get('/summary_suppliers','SummaryController@summary_suppliers');
+        Route::delete('/deleteSetup/{id}','SummaryController@deleteSupplier');
         Route::post('/supplier_summary_setup','SummaryController@supplier_summary_setup');
         Route::post('/supplier_summary_setup/edit/{id}','SummaryController@supplier_summary_edit');
+
+        Route::get('/ccc_summary_suppliers','SummaryController@ccc_summary_suppliers');
+        Route::delete('/deleteCccSetup/{id}','SummaryController@deleteCccSupplier');
+        Route::post('/ccc_supplier_summary_setup','SummaryController@ccc_supplier_summary_setup');
+        Route::post('/ccc_supplier_summary_setup/edit/{id}','SummaryController@ccc_supplier_summary_edit');
     });
 
     Route::middleware(['can:access quality'])->group(function(){
         Route::get('/quality','QualityController@index');
         Route::post('/quality/edit/{id}','QualityController@quality_edit');
-        Route::get('/returned_quality', 'QualityController@returnedQuality');
-        Route::get('/approved_quality', 'QualityController@approvedQuality');
-        Route::get('/for_approval', 'QualityController@approvalQuality');
+        Route::get('/returned_quality', 'QualityController@returnedQuality')->name('returned_quality');
+        Route::get('/approved_quality', 'QualityController@approvedQuality')->name('approved_quality');
+        Route::get('/for_approval', 'QualityController@approvalQuality')->name('quality_approval');
         Route::post('/ApproveQuality/{id}', 'QualityController@ApproveQuality');
+    });
+    Route::middleware(['can:access ccc quality'])->group(function(){
+        Route::get('/cccQuality','QualityController@cccIndex');
+        Route::post('/ccc_quality/edit/{id}','QualityController@ccc_quality_edit');
+        Route::get('/ccc_returned_quality', 'QualityController@returnedQuality')->name('ccc_returned_quality');
+        Route::get('/ccc_approved_quality', 'QualityController@approvedQuality')->name('ccc_approved_quality');
+        Route::get('/ccc_for_approval', 'QualityController@approvalQuality')->name('ccc_quality_approval');
     });
     Route::middleware(['can:access quality approval'])->group(function(){
         Route::get('/quality_approval', 'QualityController@quality_approval');
         Route::post('/DisapproveQuality/{id}', 'QualityController@DisapproveQuality');
         Route::post('/ApproveAllQuality','QualityController@approveAll');
+        Route::post('/ApproveQuality/{id}', 'QualityController@ApproveQuality');
+
+    });
+    Route::middleware(['can:access ccc quality approval'])->group(function(){
+        Route::get('/ccc_quality_approval', 'QualityController@ccc_quality_approval');
+        Route::post('/CccDisapproveQuality/{id}', 'QualityController@CccDisapproveQuality');
+        Route::post('/ApproveAllQuality','QualityController@approveAll');
+        Route::post('/CccApproveQuality/{id}', 'QualityController@CccApproveQuality');
     });
     Route::middleware(['can:access quality report'])->group(function(){
         Route::get('/qualityReport','QualityController@qualityReport');
     });
-    Route::get('/print_qiality_report/{id}', 'QualityController@print');
+    Route::middleware(['can:access quality approval setup'])->group(function(){
+        Route::get('/quality_approval_setup','QualityApproverSetupController@index');
+        Route::post('/new_approver_setup', 'QualityApproverSetupController@store');
+        Route::post('activate-approver/{id}', 'QualityApproverSetupController@activate');
+        Route::post('deactivate-approver/{id}', 'QualityApproverSetupController@deactivate');
+    });
+    Route::get('/print_quality_report/{id}', 'QualityController@print');
+    Route::get('/ccc_print_quality_report/{id}', 'QualityController@cccPrint');
 
 
     // Route::get('/home','UserController@index');

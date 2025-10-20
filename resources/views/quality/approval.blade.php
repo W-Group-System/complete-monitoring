@@ -26,7 +26,13 @@
                                                 <th>Name</th>
                                                 <th>Source</th>
                                                 <th>Status</th>
-                                                <th>Approved By</th>
+                                                <th>
+                                                    @if (request()->is('ccc_for_approval'))
+                                                        History
+                                                    @else
+                                                        Approved by
+                                                    @endif
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -35,10 +41,22 @@
                                                 <td style="center">
                                                     @if ($grpo->quality_created)
                                                         <input type="hidden" class="qualityId" value="{{ $grpo->quality_created->id }}">
-                                                        <button type="button" class="btn btn-success btn-rounded" data-toggle="modal" data-target="#editQuality{{ $grpo->DocNum }}">Edit</button>
-                                                        <a target='_blank' href="{{ url('print_qiality_report', $grpo->DocNum) }}" class="btn btn-danger btn-rounded" >View</a>
+                                                        @if (request()->routeIs('quality_approval'))
+                                                            <button type="button" class="btn btn-success btn-rounded" data-toggle="modal" data-target="#editQuality{{ $grpo->DocNum }}" disabled>Edit</button>
+                                                            <a target='_blank' href="{{ url('print_quality_report', $grpo->DocNum) }}" class="btn btn-danger btn-rounded" >View</a>
+                                                        @elseif (request()->routeIs('ccc_quality_approval'))
+                                                            @php
+                                                                $firstApprover = optional($grpo->quality_created->approvers->sortBy('level')->first());
+                                                            @endphp
+                                                            <button type="button" class="btn btn-success btn-rounded" data-toggle="modal" data-target="#editQualityCcc{{ $grpo->DocNum }}" {{ $firstApprover && $firstApprover->status == 'Approved' ? 'disabled' : '' }}>Edit</button>
+                                                            <a target='_blank' href="{{ url('ccc_print_quality_report', $grpo->DocNum) }}" class="btn btn-danger btn-rounded" >View</a>
+                                                        @endif
                                                     @else 
-                                                        <button type="button" class="btn btn-primary btn-rounded" data-toggle="modal" data-target="#editQuality{{ $grpo->DocNum }}">Edit</button>
+                                                        @if (request()->routeIs('quality_approval'))
+                                                            <button type="button" class="btn btn-primary btn-rounded" data-toggle="modal" data-target="#editQuality{{ $grpo->DocNum }}">
+                                                                Edit
+                                                            </button>
+                                                        @endif
                                                     @endif
                                                 </td>
                                                 <td>{{ $grpo->DocNum }}</td>
@@ -46,7 +64,19 @@
                                                 <td>{{ $grpo->CardName }}</td>
                                                 <td>{{ $grpo->grpoLines->first()->ItemCode }}</td>
                                                 <td>{{ $grpo->quality_created->status }}</td>
-                                                <td>{{ optional(optional($grpo->quality_created)->approvedBy)->name }}</td>
+                                                <td>
+                                                    @if (request()->is('ccc_for_approval'))
+                                                        <button type="button" class="btn btn-sm btn-success"
+                                                            data-toggle="modal"
+                                                            data-target="#historyModal{{optional($grpo->quality_created)->id}}">
+                                                            <i class="fa fa-history"></i>
+                                                        </button>
+                                                        @include('quality.history')
+                                                    @else
+                                                        {{ optional(optional($grpo->quality_created)->approvedBy)->name }}
+                                                    @endif
+                                                </td>
+                                                {{-- <td>{{ optional(optional($grpo->quality_created)->approvedBy)->name }}</td> --}}
                                             </tr>
                                             @endforeach
                                         </tbody>
@@ -62,7 +92,11 @@
     </div>
 </div>
 @foreach ($grpos as $grpo)
-@include('quality.edit')
+    @if (request()->routeIs('quality_approval'))
+        @include('quality.edit')
+    @elseif (request()->routeIs('ccc_quality_approval'))
+        @include('quality.editccc')
+    @endif
 @endforeach
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

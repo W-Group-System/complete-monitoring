@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\OCRD;
+use App\OCRD_CCC;
 use App\OPDN;
+use App\OPDN_CCC;
 use App\OPOR;
 use App\SWDelIns;
 use Carbon\Carbon;
@@ -17,24 +19,69 @@ class HomeController extends Controller
     {
         $fromDate = $request->input('start_date');
         $endDate = $request->input('end_date');
-        $supplierFilter = $request->input('supplier');
-        $suppliers = OCRD::all();
-        
-        $grpos = OPDN::with(['grpoLines.purchaseOrder' , 'freightPoInvoice.DeductionLines'])
-        ->whereHas('purchaseOrders', function ($query) use ($supplierFilter, $fromDate, $endDate) {
-            $query->whereBetween('OPOR.DocDate', [$fromDate, $endDate]);
-        })
-        ->where('OPDN.CardName',  $supplierFilter)
-        ->where('OPDN.CANCELED',  '!=','Y')
-        ->get()
-        ->map(function ($grpo) {
-            $poNumbers = $grpo->grpoLines->pluck('purchaseOrder.DocNum')->unique()->implode(' / ');
-            $poDocDate = $grpo->grpoLines->pluck('purchaseOrder.DocDate')->unique()->implode(' / ');
-            $grpo->Combined_po_numbers = $poNumbers;
-            $grpo->PoDate = $poDocDate;
-            return $grpo;
-        });
-        return view('home.index', compact('suppliers', 'grpos'));
+        $supplierFilter = $request->input('supplier', []);
+        $companyFilter = $request->input('company', 'All');
+        $whi_supplier = OCRD::get();
+        $ccc_supplier = OCRD_CCC::get();
+
+        $suppliers = $whi_supplier->concat($ccc_supplier);
+
+        $grpos = collect();
+
+        if ($companyFilter === 'WHI' || $companyFilter === 'All') {
+            $grposWHI = OPDN::with(['grpoLines.purchaseOrder' , 'freightPoInvoice.DeductionLines'])
+            // ->whereHas('purchaseOrders', function ($query) use ($supplierFilter, $fromDate, $endDate) {
+            //     $query->whereBetween('OPOR.DocDate', [$fromDate, $endDate]);
+            // })
+            ->whereBetween('OPDN.DocDate', [$fromDate, $endDate])
+            ->when(!empty($supplierFilter), fn($q) => $q->whereIn('OPDN.CardName', $supplierFilter))
+            ->where('OPDN.CANCELED',  '=','N')
+            //  ->orWhere('OPDN.CANCELED',  '!=','C')
+            ->get()
+            ->map(function ($grpo) {
+                $poNumbers = $grpo->grpoLines->pluck('purchaseOrder.DocNum')->unique()->implode(' / ');
+                $poDocDate = $grpo->grpoLines->pluck('purchaseOrder.DocDate')->unique()->implode(' / ');
+                $grpo->Combined_po_numbers = $poNumbers;
+                $grpo->PoDate = $poDocDate;
+                return $grpo;
+            });
+            $grpos = $grpos->concat($grposWHI);
+        }
+        if ($companyFilter === 'CCC' || $companyFilter === 'All') {
+            $grposCCC = OPDN_CCC::with(['grpoLines.purchaseOrder', 'freightPoInvoice.DeductionLines'])
+            // ->whereHas('purchaseOrders', function ($query) use ($supplierFilter, $fromDate, $endDate) {
+            //     $query->whereBetween('OPOR.DocDate', [$fromDate, $endDate]);
+            // })
+            ->whereBetween('OPDN.DocDate', [$fromDate, $endDate])
+            ->when(!empty($supplierFilter), fn($q) => $q->whereIn('OPDN.CardName', $supplierFilter))
+            ->where('OPDN.CANCELED', '=', 'N')
+            ->get()
+            ->map(function ($grpo) {
+                $grpo->Combined_po_numbers = $grpo->grpoLines->pluck('purchaseOrder.DocNum')->unique()->implode(' / ');
+                $grpo->PoDate = $grpo->grpoLines->pluck('purchaseOrder.DocDate')->unique()->implode(' / ');
+                return $grpo;
+            });
+            $grpos = $grpos->concat($grposCCC);
+        }
+        $grpos = $grpos->sortBy('DocDate')->values();
+        // $grposCCC = OPDN_CCC::with(['grpoLines.purchaseOrder' , 'freightPoInvoice.DeductionLines'])
+        // ->whereHas('purchaseOrders', function ($query) use ($supplierFilter, $fromDate, $endDate) {
+        //     $query->whereBetween('OPOR.DocDate', [$fromDate, $endDate]);
+        // })
+        // ->whereBetween('OPDN.DocDate', [$fromDate, $endDate])
+        // ->where('OPDN.CardName',  $supplierFilter)
+        // ->where('OPDN.CANCELED',  '!=','Y')
+        // ->get()
+        // ->map(function ($grpo) {
+        //     $poNumbers = $grpo->grpoLines->pluck('purchaseOrder.DocNum')->unique()->implode(' / ');
+        //     $poDocDate = $grpo->grpoLines->pluck('purchaseOrder.DocDate')->unique()->implode(' / ');
+        //     $grpo->Combined_po_numbers = $poNumbers;
+        //     $grpo->PoDate = $poDocDate;
+        //     return $grpo;
+        // });
+
+    //   $grpos = collect($grposWHI->concat($grposCCC));
+        return view('home.index', compact('suppliers', 'grpos', 'companyFilter'));
     }
 
     public function filter(Request $request) 

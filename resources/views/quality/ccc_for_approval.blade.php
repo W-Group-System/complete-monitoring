@@ -6,7 +6,7 @@
             <div class="ibox float-e-margins">
                 <div class="card-body">
                     <h4 class="ibox-title">
-                        <form method="GET" action="{{ url('/quality_approval') }}" class="form-inline" style="margin-bottom: 15px;" onsubmit="show()">
+                        <form method="GET" action="{{ url('/ccc_quality_approval') }}" class="form-inline" style="margin-bottom: 15px;" onsubmit="show()">
                             <div class="form-group">
                                 <input type="text" name="search" class="form-control" placeholder="Search" value="{{ request('search') }}">
                             </div>
@@ -39,7 +39,7 @@
                                                     @if ($grpo->quality_created)
                                                         <input type="hidden" class="qualityId" value="{{ $grpo->quality_created->id }}">
                                                         {{-- <button type="button" class="btn btn-success btn-rounded" data-toggle="modal" data-target="#editQuality{{ $grpo->DocNum }}">Edit</button> --}}
-                                                        <a target='_blank' href="{{ url('print_quality_report', $grpo->DocNum) }}" class="btn btn-danger btn-rounded" >View</a>
+                                                        <a target='_blank' href="{{ url('ccc_print_quality_report', $grpo->DocNum) }}" class="btn btn-danger btn-rounded" >View</a>
                                                         <button type="button" class="btn btn-info btn-rounded approveQuality" data-id="{{ $grpo->quality_created->id }}">Approve</button>
                                                         <button type="button" class="btn btn-warning btn-rounded disapproveQuality" data-id="{{ $grpo->quality_created->id }}">Return</button>
                                                     @else 
@@ -74,7 +74,7 @@
 <script>
     $(".approveQuality").on('click', function(){
         var qualityId = $(this).data('id');
-        var approveUrl = "{{ url('ApproveQuality') }}/" + qualityId;
+        var approveUrl = "{{ url('CccApproveQuality') }}/" + qualityId;
 
         Swal.fire({
         title: "Are you sure?",
@@ -109,7 +109,7 @@
     })
     $(".disapproveQuality").on('click', function() {
         var qualityId = $(this).data('id');
-        var disapproveUrl = "{{ url('DisapproveQuality') }}/" + qualityId;
+        var disapproveUrl = "{{ url('CccDisapproveQuality') }}/" + qualityId;
 
         Swal.fire({
             title: "Returned Quality Result",
