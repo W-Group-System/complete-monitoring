@@ -447,7 +447,7 @@
                     <label class="checkbox-label-two">
                         <input type="checkbox" class="checkbox-cell"
                             {{ optional(optional($details->quality_created)->tie_tie)->foreign_matter == 'Absent' ? 'checked' : '' }}>
-                        Present
+                        Absent
                     </label>
                 </td>
                 <td class="center">{{ optional(optional($details->quality_created)->tie_tie)->impurities}}</td>
@@ -466,7 +466,7 @@
                     <label class="checkbox-label-two">
                         <input type="checkbox" class="checkbox-cell"
                             {{ optional(optional($details->quality_created)->sand)->foreign_matter == 'Absent' ? 'checked' : '' }}>
-                        Present
+                        Absent
                     </label>
                 </td>
                 <td class="center">{{ optional(optional($details->quality_created)->sand)->impurities}}</td>

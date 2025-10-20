@@ -26,7 +26,13 @@
                                                 <th>Name</th>
                                                 <th>Source</th>
                                                 <th>Status</th>
-                                                <th>Returned By</th>
+                                                <th>
+                                                    @if (request()->is('ccc_for_approval'))
+                                                        History
+                                                    @else
+                                                        Approved by
+                                                    @endif
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -51,7 +57,19 @@
                                                 <td>{{ $grpo->CardName }}</td>
                                                 <td>{{ $grpo->grpoLines->first()->ItemCode }}</td>
                                                 <td>{{ $grpo->quality_created->status }}</td>
-                                                <td>{{ optional(optional($grpo->quality_created)->approvedBy)->name }}</td>
+                                                <td>
+                                                    @if (request()->is('ccc_approved_quality'))
+                                                        <button type="button" class="btn btn-sm btn-success"
+                                                            data-toggle="modal"
+                                                            data-target="#historyModal{{optional($grpo->quality_created)->id}}">
+                                                            <i class="fa fa-history"></i>
+                                                        </button>
+                                                        @include('quality.history')
+                                                    @else
+                                                        {{ optional(optional($grpo->quality_created)->approvedBy)->name }}
+                                                    @endif
+                                                </td>
+                                                {{-- <td>{{ optional(optional($grpo->quality_created)->approvedBy)->name }}</td> --}}
                                             </tr>
                                             @endforeach
                                         </tbody>

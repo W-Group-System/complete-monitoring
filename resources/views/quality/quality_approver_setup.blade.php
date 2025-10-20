@@ -26,7 +26,7 @@
                                     <label>Department (optional)</label>
                                     <input type="text" name="department" class="form-control">
                                 </div>
-                                <div class="col-md-3 d-flex align-items-end">
+                                <div class="col-md-3 d-flex align-items-end" style="margin-top:20px;">
                                     <button type="submit" class="btn btn-primary w-100">Add Approver</button>
                                 </div>
                             </div>
@@ -43,6 +43,7 @@
                                                     <th>Level</th>
                                                     <th>User</th>
                                                     <th>Department</th>
+                                                    <th>Status</th>
                                                     <th>Action</th>
                                                 </tr>
                                             </tr>
@@ -53,15 +54,30 @@
                                                     <td>{{ $setup->level }}</td>
                                                     <td>{{ $setup->user->name }}</td>
                                                     <td>{{ $setup->department ?? '-' }}</td>
-                                                    {{-- <td>
-                                                        <form action="{{ route('approver-setup.destroy', $setup->id) }}" method="POST">
-                                                            @csrf @method('DELETE')
-                                                            <button type="submit" class="btn btn-danger btn-sm"
-                                                                onclick="return confirm('Remove this approver?')">
-                                                                Remove
-                                                            </button>
-                                                        </form>
-                                                    </td> --}}
+                                                    <td>
+                                                        @if ($setup->status === "Active")
+                                                            Active
+                                                        @else
+                                                            Inactive
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if($setup->status == "Active")
+                                                            <form method="post" action="{{ url('deactivate-approver/'.$setup->id) }}" onsubmit="show()"  style="display: inline-block;">
+                                                                @csrf 
+                                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                                    <i class="fa fa-ban"></i>
+                                                                </button>
+                                                            </form>
+                                                            @else
+                                                            <form method="post" action="{{ url('activate-approver/'.$setup->id) }}" onsubmit="show()"  style="display: inline-block;">
+                                                                @csrf
+                                                                <button type="submit" class="btn btn-sm btn-primary">
+                                                                    <i class="fa fa-check"></i>
+                                                                </button>
+                                                            </form>
+                                                        @endif
+                                                    </td>
                                                 </tr>
                                             @empty
                                                 <tr><td colspan="4" class="text-center">No approvers set yet.</td></tr>

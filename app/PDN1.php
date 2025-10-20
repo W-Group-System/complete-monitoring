@@ -17,7 +17,10 @@ class PDN1 extends Model
      {
         return $this->belongsTo(OPOR::class, 'BaseEntry', 'DocEntry'); 
      }
-
+     public function purchaseOrderNew()
+      {
+         return $this->belongsTo(OPOR::class, 'BaseEntry', 'DocEntry')->where('BaseType', 22);
+      }
      public function pch1()
      {
         return $this->hasMany(PCH1::class, 'BaseEntry', 'DocEntry')->where('BaseType', 20);

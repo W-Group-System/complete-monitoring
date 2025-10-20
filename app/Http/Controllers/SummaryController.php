@@ -96,20 +96,14 @@ class SummaryController extends Controller
 
         SummarySupplier::with(['opdn' => function ($opdnQuery) use ($fromDate, $endDate) {
             $opdnQuery->whereBetween('DocDate', [$fromDate, $endDate])
-                ->where('CANCELED', '!=', 'Y')
-                ->whereHas('purchaseOrders', function ($query) use ($fromDate, $endDate) {
-                    $query->whereBetween('OPOR.DocDate', [$fromDate, $endDate]);
-                });
+                ->where('CANCELED', '=', 'N');
         }])->chunk(500, function ($chunk) use (&$mergedSuppliers) {
             $mergedSuppliers = $mergedSuppliers->concat($chunk);
         });
 
         SummarySuppliersCcc::with(['opdn' => function ($opdnQuery) use ($fromDate, $endDate) {
             $opdnQuery->whereBetween('DocDate', [$fromDate, $endDate])
-                ->where('CANCELED', '!=', 'Y')
-                ->whereHas('purchaseOrders', function ($query) use ($fromDate, $endDate) {
-                    $query->whereBetween('OPOR.DocDate', [$fromDate, $endDate]);
-                });
+                ->where('CANCELED', '=', 'N');
         }])->chunk(500, function ($chunk) use (&$mergedSuppliers) {
             $mergedSuppliers = $mergedSuppliers->concat($chunk);
         });
@@ -145,6 +139,15 @@ class SummaryController extends Controller
         $suppliers = SummarySupplier::all();
         $ocrds = OCRD::all();
         return view('summary_supplier.index',compact('suppliers','ocrds'));
+    }
+
+    public function deleteSupplier($id)
+    {
+        $supplier = SummarySupplier::findOrFail($id);
+
+        $supplier->delete();
+
+        return redirect()->back()->with('success', 'Supplier deleted successfully.');
     }
 
     public function supplier_summary_setup(Request $request)
@@ -207,5 +210,14 @@ class SummaryController extends Controller
         $edit_supplier->save();
         return back()->with('success', 'Supplier edited successfully.');
     }
+    public function deleteCccSupplier($id)
+    {
+        $supplier = SummarySuppliersCcc::findOrFail($id);
+
+        $supplier->delete();
+
+        return redirect()->back()->with('success', 'Supplier deleted successfully.');
+    }
+    
 
 }

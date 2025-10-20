@@ -28,6 +28,16 @@
                                             <tr> 
                                                 <td style="center">
                                                     <button type="button" class="btn btn-primary btn-rounded" data-toggle="modal" data-target="#editSummarySupplier{{ $supplier->id }}"> Edit</button>
+                                                    <form action="{{ url('deleteSetup', $supplier->id) }}" 
+                                                        method="POST" 
+                                                        style="display: inline-block;"
+                                                        onsubmit="return confirm('Are you sure you want to delete this supplier?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-danger btn-rounded">
+                                                            Delete
+                                                        </button>
+                                                    </form>
                                                 </td>
                                                 <td>{{ $supplier->CardCode }}</td>
                                                 <td>{{ $supplier->CardName }}</td>

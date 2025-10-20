@@ -71,10 +71,12 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/cott_summary','SummaryController@index');
         Route::get('/spi_summary','SummaryController@index');
         Route::get('/summary_suppliers','SummaryController@summary_suppliers');
+        Route::delete('/deleteSetup/{id}','SummaryController@deleteSupplier');
         Route::post('/supplier_summary_setup','SummaryController@supplier_summary_setup');
         Route::post('/supplier_summary_setup/edit/{id}','SummaryController@supplier_summary_edit');
 
         Route::get('/ccc_summary_suppliers','SummaryController@ccc_summary_suppliers');
+        Route::delete('/deleteCccSetup/{id}','SummaryController@deleteCccSupplier');
         Route::post('/ccc_supplier_summary_setup','SummaryController@ccc_supplier_summary_setup');
         Route::post('/ccc_supplier_summary_setup/edit/{id}','SummaryController@ccc_supplier_summary_edit');
     });
@@ -113,6 +115,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::middleware(['can:access quality approval setup'])->group(function(){
         Route::get('/quality_approval_setup','QualityApproverSetupController@index');
         Route::post('/new_approver_setup', 'QualityApproverSetupController@store');
+        Route::post('activate-approver/{id}', 'QualityApproverSetupController@activate');
+        Route::post('deactivate-approver/{id}', 'QualityApproverSetupController@deactivate');
     });
     Route::get('/print_quality_report/{id}', 'QualityController@print');
     Route::get('/ccc_print_quality_report/{id}', 'QualityController@cccPrint');

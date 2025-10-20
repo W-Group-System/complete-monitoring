@@ -125,37 +125,58 @@
                                                             foreach ($grpo->freightPoInvoice as $invoice) {
                                                                 foreach ($invoice->DeductionLines as $freightLine) {
                                                                     $vat = $freightLine->VatPrcnt / 100;
-                                                                    $totalFreightPo += $freightLine->LineTotal * (1 + $vat);
+                                                                    $vatProduct = ($freightLine->LineTotal * $vat);
+                                                                    $totalFreightPo += ($freightLine->LineTotal + $vatProduct);
                                                                 }
                                                             }
                                         
                                                             foreach ($grpo->truckingPoInvoice as $truckInvoice) {
                                                                 foreach ($truckInvoice->DeductionLines as $truckLine) {
                                                                     $vat = $truckLine->VatPrcnt / 100;
-                                                                    $totalTruckingPo += $truckLine->LineTotal * (1 + $vat);
+                                                                    $vatProduct = ($truckLine->LineTotal * $vat);
+                                                                    $totalTruckingPo += ($truckLine->LineTotal + $vatProduct);
                                                                 }
                                                             }
-                                        
+                                                            $totalDeductionPhp = 0;
                                                             foreach ($grpo->grpoLines as $line) {
                                                                 $qty = (float) $line->Quantity;
                                                                 $price =(float) $line->Price;
                                         
-                                                                $totalArrivalWt += (float) $line->Quantity;
-                                                                $totalWeightedAmount += (float) $line->Quantity *(float) $line->Price;
+                                                                $totalArrivalWt += $qty;
+                                                                $totalWeightedAmount += $qty * $price;
                                         
-                                                                $moisture = (float) (optional($grpo->qualityResult)->U_MOIST ?? 0);
+                                                                $moistureData = optional(
+                                                                    optional($grpo->quality_created_approved)->chemical_testings
+                                                                )->first(function ($item) {
+                                                                    return stripos($item->parameter, 'moisture') !== false;
+                                                                });
+
+                                                                $moisture = (float) optional($moistureData)->result;
+
                                                                 $avg2 = (float) ($grpo->U_Average2 ?? 0);
                                                                 $totalLabMc += $qty * $moisture;
                                         
-                                                                $mcDeduction = $moisture - $avg2;
-                                                                $deductionPhp = ($mcDeduction / 100) * $price;
+                                                                $mcDeduction = optional($grpo->qualityResult)->moistureResult - ($grpo->U_Average2 ?? 0);
+                                                                $deductionPerLine = ($mcDeduction / 100) * $line->Price;
+                                                                $totalDeductionPhp += $deductionPerLine * $line->Quantity;
+
+                                                                // $delPrice = $totalArrivalWt
+                                                                // ? number_format(
+                                                                //     ($price - max($deductionPhp, 0)) +
+                                                                //     (($totalFreightPo + $totalTruckingPo) / $totalArrivalWt),
+                                                                //     2
+                                                                // )
+                                                                // : null;
                                                             }
+                                                            $avgDeductionPhp = $totalArrivalWt > 0 ? $totalDeductionPhp / $totalArrivalWt : 0;
                                                         }
                                         
                                                         if ($totalArrivalWt) {
+                                                            $avgPrice = $totalWeightedAmount / $totalArrivalWt;
                                                             $delPrice = number_format(
-                                                                ($price - max($deductionPhp, 0)) +
-                                                                (($totalFreightPo + $totalTruckingPo) / $totalArrivalWt), 2
+                                                                ($avgPrice - max($avgDeductionPhp, 0))
+                                                                + (($totalFreightPo + $totalTruckingPo) / $totalArrivalWt),
+                                                                2
                                                             );
                                                             $buyingPrice = number_format($totalWeightedAmount / $totalArrivalWt, 2);
                                                             $cottoni = number_format( $totalArrivalWt, 2);

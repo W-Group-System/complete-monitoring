@@ -228,7 +228,7 @@
                                     ['parameter' => '1. % Moisture (weeds)', 'spec' => 'Based on agreed MC'],
                                     ['parameter' => '2. % Recovery (lab yield)', 'spec' => 'Based on Agreed Lab Yield'],
                                     ['parameter' => '3. % Impurities', 'spec' => 'Maximum of 2.0%'],
-                                    ['parameter' => '4. CAW', 'spec' => 'Minimum 32%'],
+                                    ['parameter' => '4. % CAW', 'spec' => 'Minimum 32%'],
                                     ['parameter' => '5. CAW Ratio', 'spec' => 'Below 1.2 salted; above 1.4 is still acceptable'],
                                     // ['parameter' => '6. % Salt (NaCl)', 'spec' => 'Maximum of 20%'],
                                     ['parameter' => '6. Viscosity', 'spec' => 'E. Cottonii - Min of 20cps @ 1.5%, 75°C'],
@@ -237,7 +237,7 @@
                                     ['parameter' => '', 'spec' => 'E. Spinosum: 7.5 - 9.5 @ 2.0%, 60°C'],
                                     ['parameter' => '8. Water Gel Strength', 'spec' => 'E. Cottonii - Min of 250g/cm² @ 1.5% w/w 20°C'],
                                     ['parameter' => '9. Potassium Gel Strength', 'spec' => 'E. Cottonii - Min of 660 g/cm2; @ 1.5% 0.2% KCl at 20°C'],
-                                    ['parameter' => '10.  Calcium Gel Strength', 'spec' => 'E. Spinosum – Min of 80 g/cm² @ 2% 0.2% CaCI at 20°C'],
+                                    ['parameter' => '10.  Calcium Gel Strength', 'spec' => 'E. Spinosum – Min of 20 g/cm² @ 2% 0.2% CaCI at 20°C'],
                                 ];
                             @endphp
                             @php
@@ -283,19 +283,25 @@
                             <div class="col-md-12 mb-2">
                                 <div class="row mb-2 align-items-center">
                                     <div class="col-md-4">
-                                        <label class="d-block mb-1">1. Tie-tie/FOM</label>
+                                        <label class="d-block mb-1">1. Tie-tie/OFM</label>
+                                        @php
+                                            $storedFoms = json_decode($grpo->quality_created->tie_tie->foreign_matter ?? '[]', true) ?? [];
+                                        @endphp
                                         <div style="display: flex; gap: 30px; flex-wrap: nowrap; align-items: center;">
-                                            <div class="form-check" style="margin: 0;">
-                                                <input class="form-check-input" type="radio" name="foms" id="foms" value="Present"
-                                                {{ optional(optional($grpo->quality_created)->tie_tie)->foreign_matter == 'Present' ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="foms">Present</label>
-                                            </div>
-                                            <div class="form-check" style="margin: 0;">
-                                                <input class="form-check-input" type="radio" name="foms" id="foms" value="Absent"
-                                                {{ optional(optional($grpo->quality_created)->tie_tie)->foreign_matter == 'Absent' ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="foms">Absent</label>
-                                            </div>
+                                            @foreach (['Present', 'Present'] as $index => $option)
+                                                <div class="form-check" style="margin: 0;">
+                                                    <input 
+                                                        class="form-check-input" 
+                                                        type="checkbox" 
+                                                        name="foms[]" 
+                                                        id="foms_{{ $index }}" 
+                                                        value="{{ $option }}"
+                                                        {{ in_array($option, (array) $storedFoms) ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="foms_{{ $index }}">{{ $option }}</label>
+                                                </div>
+                                            @endforeach
                                         </div>
+
                                     </div>
                                     <div class="col-md-2">
                                         <div style="display: flex; flex-wrap: nowrap; gap: 15px;">
@@ -323,7 +329,25 @@
                                 <div class="row mb-2 align-items-center">
                                     <div class="col-md-4">
                                         <label class="d-block mb-1">2. Sand/Salt</label>
+                                        @php
+                                            $storedSandSalt = json_decode($grpo->quality_created->sand->foreign_matter ?? '[]', true) ?? [];
+                                        @endphp
                                         <div style="display: flex; gap: 30px; flex-wrap: nowrap; align-items: center;">
+                                            @foreach (['Present', 'Present'] as $index => $option)
+                                                <div class="form-check" style="margin: 0;">
+                                                    <input 
+                                                        class="form-check-input" 
+                                                        type="checkbox" 
+                                                        name="salts[]" 
+                                                        id="sand_salt_{{ $index }}" 
+                                                        value="{{ $option }}"
+                                                        {{ in_array($option, (array) $storedSandSalt) ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="sand_salt_{{ $index }}">{{ $option }}</label>
+                                                </div>
+                                            @endforeach
+                                        </div>
+
+                                        {{-- <div style="display: flex; gap: 30px; flex-wrap: nowrap; align-items: center;">
                                             <div class="form-check" style="margin: 0;">
                                                 <input class="form-check-input" type="radio" name="salts" id="salts" value="Present"
                                                 {{ optional(optional($grpo->quality_created)->sand)->foreign_matter == 'Present' ? 'checked' : '' }}>
@@ -332,9 +356,9 @@
                                             <div class="form-check" style="margin: 0;">
                                                 <input class="form-check-input" type="radio" name="salts" id="salts" value="Absent"
                                                 {{ optional(optional($grpo->quality_created)->sand)->foreign_matter == 'Absent' ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="salts">Absent</label>
+                                                <label class="form-check-label" for="salts">Present</label>
                                             </div>
-                                        </div>
+                                        </div> --}}
                                     </div>
                                     <div class="col-md-2">
                                         <div style="display: flex; flex-wrap: nowrap; gap: 15px;">

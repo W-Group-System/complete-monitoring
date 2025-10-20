@@ -27,3 +27,5 @@ Route::post('/refresh-permissions', function (Request $request) {
         'expected' => $expected,
     ]);
 });
+
+Route::get('/salesorder', 'QualityController@salesorder');

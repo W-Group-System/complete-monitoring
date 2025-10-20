@@ -21,9 +21,15 @@
                                     <div class="col-md-2">
                                         <label>Company</label>
                                         <select class="chosen-select" name="company">
-                                            <option value="All" {{ ($companyFilter ?? 'All') == 'All' ? 'selected' : '' }}>All</option>
-                                            <option value="WHI" {{ $companyFilter == 'WHI' ? 'selected' : '' }}>WHI</option>
-                                            <option value="CCC" {{ $companyFilter == 'CCC' ? 'selected' : '' }}>CCC</option>
+                                            @if (auth()->user()->company === "ALL")
+                                                <option value="All" {{ ($companyFilter ?? 'All') == 'All' ? 'selected' : '' }}>All</option>
+                                                <option value="WHI" {{ $companyFilter == 'WHI' ? 'selected' : '' }}>WHI</option>
+                                                <option value="CCC" {{ $companyFilter == 'CCC' ? 'selected' : '' }}>CCC</option>
+                                            @elseif (auth()->user()->company === "WHI")
+                                                <option value="WHI" {{ $companyFilter == 'WHI' ? 'selected' : '' }}>WHI</option>
+                                            @elseif (auth()->user()->company === "CCC")
+                                                <option value="CCC" {{ $companyFilter == 'CCC' ? 'selected' : '' }}>CCC</option>
+                                            @endif
                                         </select>
                                     </div>
                                     <div class="col-md-3">

@@ -64,4 +64,8 @@ class Quality extends Model implements Auditable
             ->orderBy('level', 'asc')
             ->first();
     }
+    public function history()
+     {
+        return $this->hasMany(AuditLog::class, 'model_id', 'id');
+     }
 }

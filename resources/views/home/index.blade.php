@@ -18,9 +18,10 @@
                             </div>
                             <div class="col-md-5">
                                 <label>Supplier</label>
-                                <select class="chosen-select" name="supplier">
+                                <select class="chosen-select" name="supplier[]" multiple="multiple">
                                     @foreach ($suppliers as $supplier)
-                                        <option value="{{ $supplier->CardName }}" {{ $supplier->CardName == Request::get('supplier') ? 'selected' : '' }}>
+                                        <option value="{{ $supplier->CardName }}"
+                                            {{ in_array($supplier->CardName, (array) request('supplier', [])) ? 'selected' : '' }}>
                                             {{ $supplier->CardName }}
                                         </option>
                                     @endforeach
@@ -214,13 +215,14 @@
                                             @endforeach
                                             @endforeach
                                             <tr>
-                                                <td>{{ $grpo->Combined_po_numbers }}</td> 
                                                 @php
+                                                    $poNums = explode(' / ', $grpo->Combined_po_numbers); 
                                                     $poDates = explode(' / ', $grpo->PoDate); 
                                                     $formattedDates = collect($poDates)->map(function ($date) {
                                                         return \Carbon\Carbon::parse(trim($date))->format('M-d-Y');
                                                     })->implode(' / ');
                                                 @endphp
+                                                <td>{{ implode(' / ', $poNums) }}</td>
                                                 <td>{{ $formattedDates }}</td>
                                                 <td>{{ $grpo->NumAtCard }}</td> 
                                                 <td>{{ $grpo->CardName }}</td> 
@@ -236,9 +238,22 @@
                                                 <td>{{ $grpo->U_BillLading }}</td>
                                                 <td>{{ $grpo->U_Shhippingline }}</td>
                                                 <td>{{ $grpo->U_Plateno }}</td>
-                                                <td>{{ $grpo->grpoLines->first()->WhsCode }}</td>
+                                                {{-- <td>{{ $grpo->grpoLines->first()->WhsCode }}</td> --}}
+                                                <td>
+                                                    @if(is_numeric($grpo->grpoLines->first()->WhsCode))
+                                                        {{ $grpo->grpoLines->first()->warehouseCode->first()->WhsName }}
+                                                    @else
+                                                        {{ $grpo->grpoLines->first()->WhsCode }}
+                                                    @endif
+                                                </td>
                                                 {{-- <td>{{ $grpo->ToWhsCode }}</td> --}}
-                                                <td>{{  \Carbon\Carbon::parse(trim($grpo->U_AWBdate))->format('M-d-Y')  }}</td>
+                                                <td>
+                                                    @if ($grpo->U_AWBdate) 
+                                                      {{  \Carbon\Carbon::parse(trim($grpo->U_AWBdate))->format('M-d-Y')  }} 
+                                                    @else
+                                                     
+                                                    @endif
+                                                </td>
                                                 <td>{{ \Carbon\Carbon::parse(trim($grpo->DocDate))->format('M-d-Y') }}</td>
                                                 <td>{{ number_format($NoOfBags) }}</td>
                                                 <td>{{ number_format($ArrivalWt,2) }}</td>
@@ -412,7 +427,7 @@
                                             //     ->groupBy(fn($grpo) => Carbon::parse(explode(' / ', $grpo->DocDate)[0])->format('Y-m'));
                                             $monthlyData_SPIPHIL = $grpos->filter(function ($grpo) {
                                                 $itemCode = optional($grpo->grpoLines->first())->ItemCode;
-                                                return in_array($itemCode, ['SWDSPIPHIL', 'Seaweeds-SPINOSUM']);
+                                                return in_array($itemCode, ['SWDSPIPHIL', 'Seaweeds - SPINOSUM']);
                                             })->groupBy(function ($grpo) {
                                                 return Carbon::parse(explode(' / ', $grpo->DocDate)[0])->format('Y-m');
                                             });
@@ -453,15 +468,32 @@
                                                             $totalArrivalWt_COTPHIL += $line->Quantity;
                                                             $totalWeightedAmount_COTPHIL += ($line->Quantity * $line->Price);
                                                             // $moistureContent = (float) optional($grpo->qualityResult)->U_MOIST;
-                                                            $moistureContent = (float) optional($grpo->qualityResult)->moistureResult;
-                                                            $totalLabMc_COTPHIL += (float) $line->Quantity * $moistureContent;
+                                                            // $moistureContent = (float) optional($grpo->qualityResult)->moistureResult;
+                                                            // $totalLabMc_COTPHIL += (float) $line->Quantity * $moistureContent;
+                                                            $moistureContent = optional(
+                                                                optional($grpo->quality_created_approved)->chemical_testings
+                                                            )->first(function ($item) {
+                                                                return stripos($item->parameter, 'moisture') !== false;
+                                                            });
+
+                                                            $moistureContent = optional($moistureContent)->result;
+
+                                                            $totalLabMc_COTPHIL += (float) $line->Quantity * (float) $moistureContent;
 
                                                             // $MCottDeduction = optional($grpo->qualityResult)->U_MOIST - ($grpo->U_Average2 ?? 0);
                                                             $MCottDeduction = optional($grpo->qualityResult)->moistureResult - ($grpo->U_Average2 ?? 0);
                                                             $McCottDeductionPhp = ($MCottDeduction/100) * $line->Price;
-                                                            $weightedAvgDeliveredPrice_COTPHIL = $totalArrivalWt_COTPHIL ? number_format(($line->Price - max($McCottDeductionPhp, 0) ) + (($totalCottFreightPo + $totalCottTruckingPo) / $totalArrivalWt_COTPHIL),2): null;
+                                                            // $weightedAvgDeliveredPrice_COTPHIL = $totalArrivalWt_COTPHIL ? number_format(($line->Price - max($McCottDeductionPhp, 0) ) + (($totalCottFreightPo + $totalCottTruckingPo) / $totalArrivalWt_COTPHIL),2): null;
 
                                                         }
+                                                    }
+                                                    if ($totalArrivalWt_COTPHIL > 0) {
+                                                        $weightedAvgDeliveredPrice_COTPHIL = number_format(
+                                                            ($totalWeightedAmount_COTPHIL / $totalArrivalWt_COTPHIL)
+                                                            - max($McCottDeductionPhp, 0)
+                                                            + (($totalCottFreightPo + $totalCottTruckingPo) / $totalArrivalWt_COTPHIL),
+                                                            2
+                                                        );
                                                     }
                                                 }
                                     
@@ -500,8 +532,17 @@
                                                             $totalArrivalWt_SPIPHIL += $line->Quantity;
                                                             $totalWeightedAmount_SPIPHIL += ($line->Quantity * $line->Price);
                                                             // $moistureContent = (float) optional($grpo->qualityResult)->U_MOIST;
-                                                            $moistureContent = (float) optional($grpo->qualityResult)->moistureResult;
-                                                            $totalLabMc_SPIPHIL += (float) $line->Quantity * $moistureContent;
+                                                            // $moistureContent = (float) optional($grpo->qualityResult)->moistureResult;
+                                                            // $totalLabMc_SPIPHIL += (float) $line->Quantity * $moistureContent;
+                                                            $moistureContent = optional(
+                                                                optional($grpo->quality_created_approved)->chemical_testings
+                                                            )->first(function ($item) {
+                                                                return stripos($item->parameter, 'moisture') !== false;
+                                                            });
+
+                                                            $moistureContent = optional($moistureContent)->result;
+
+                                                            $totalLabMc_SPIPHIL += (float) $line->Quantity * (float) $moistureContent;
 
                                                             // $MSpiDeduction = optional($grpo->qualityResult)->U_MOIST - ($grpo->U_Average2 ?? 0);
                                                             $MSpiDeduction = optional($grpo->qualityResult)->moistureResult - ($grpo->U_Average2 ?? 0);

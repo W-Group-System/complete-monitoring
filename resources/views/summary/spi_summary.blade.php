@@ -98,11 +98,11 @@
                                                     @else black;
                                                     @endif
                                                 color:
-                                                    @if($supplier->OriginGroup == 'OTHERS' || empty($supplier->OriginGroup)) white;
+                                                    @if(optional($supplier)->OriginGroup == 'OTHERS' || empty(optional($supplier)->OriginGroup)) white;
                                                     @else black;
                                                     @endif
                                             ">
-                                                {{ $supplier->OriginGroup }}
+                                                {{ optional($supplier)->OriginGroup }}
                                             </td>
                                                 @foreach ($months as $month)
                                                     @php
@@ -111,7 +111,9 @@
                                                             $docDate = \Carbon\Carbon::parse($grpo->DocDate);
                                                             $firstLine = $grpo->grpoLines->first();
                                                            
-                                                            return $docDate->format('m') == $monthNum && optional($firstLine)->ItemCode === 'SWDSPIPHIL';
+                                                            // return $docDate->format('m') == $monthNum && optional($firstLine)->ItemCode === 'SWDSPIPHIL';
+                                                            return $docDate->format('m') == $monthNum && in_array(optional($firstLine)->ItemCode, ['Seaweeds - SPINOSUM', 'SWDSPIPHIL']);
+
                                                         });
                                                         $totalArrivalWt = 0;
                                                         $totalWeightedAmount = 0;
@@ -119,42 +121,75 @@
                                                         $totalFreightPo = 0;
                                                         $totalTruckingPo = 0;
                                                         $deductionPhp = 0;
-                                                        $delPrice = null;
+                                                        $delPrice = 0;
                                                         foreach ($grpos as $grpo) {
-                                                            foreach ($grpo->freightPoInvoice as $invoice) {
-                                                                foreach ($invoice->DeductionLines as $freightLine) {
-                                                                    $vat = $freightLine->VatPrcnt / 100;
-                                                                    $totalFreightPo += $freightLine->LineTotal * (1 + $vat);
+                                                            if (is_numeric($grpo->U_freightPO)) {
+                                                                foreach ($grpo->freightPoInvoice as $invoice) {
+                                                                    foreach ($invoice->DeductionLines as $freightLine) {
+                                                                        $vat = $freightLine->VatPrcnt / 100;
+                                                                        $vatProduct = ($freightLine->LineTotal * $vat);
+                                                                        $totalFreightPo += ($freightLine->LineTotal + $vatProduct);
+                                                                    }
                                                                 }
                                                             }
-                                        
-                                                            foreach ($grpo->truckingPoInvoice as $truckInvoice) {
-                                                                foreach ($truckInvoice->DeductionLines as $truckLine) {
-                                                                    $vat = $truckLine->VatPrcnt / 100;
-                                                                    $totalTruckingPo += $truckLine->LineTotal * (1 + $vat);
+
+                                                            // --- Trucking ---
+                                                            if (is_numeric($grpo->U_TruckingPO)) {
+                                                                foreach ($grpo->truckingPoInvoice as $truckInvoice) {
+                                                                    foreach ($truckInvoice->DeductionLines as $truckLine) {
+                                                                        $vat = $truckLine->VatPrcnt / 100;
+                                                                        $vatProduct = ($truckLine->LineTotal * $vat);
+                                                                        $totalTruckingPo += ($truckLine->LineTotal + $vatProduct);
+                                                                    }
                                                                 }
                                                             }
+                                                            // foreach ($grpo->freightPoInvoice as $invoice) {
+                                                            //     foreach ($invoice->DeductionLines as $freightLine) {
+                                                            //         $vat = $freightLine->VatPrcnt / 100;
+                                                            //         $vatProduct = ($freightLine->LineTotal * $vat);
+                                                            //         $totalFreightPo += ($freightLine->LineTotal + $vatProduct);
+                                                            //     }
+                                                            // }
                                         
+                                                            // foreach ($grpo->truckingPoInvoice as $truckInvoice) {
+                                                            //     foreach ($truckInvoice->DeductionLines as $truckLine) {
+                                                            //         $vat = $truckLine->VatPrcnt / 100;
+                                                            //         $vatProduct = ($truckLine->LineTotal * $vat);
+                                                            //         $totalTruckingPo += ($truckLine->LineTotal + $vatProduct);
+                                                            //     }
+                                                            // }
+                                                            $totalDeductionPhp = 0;
                                                             foreach ($grpo->grpoLines as $line) {
-                                                                $qty = $line->Quantity;
-                                                                $price = $line->Price;
+                                                                $qty = (float) $line->Quantity;
+                                                                $price =(float) $line->Price;
                                         
-                                                                $totalArrivalWt += $line->Quantity;
-                                                                $totalWeightedAmount += $line->Quantity * $line->Price;
+                                                                $totalArrivalWt += $qty;
+                                                                $totalWeightedAmount += $qty * $price;
                                         
-                                                                $moisture = optional($grpo->qualityResult)->U_MOIST ?? 0;
-                                                                $avg2 = $grpo->U_Average2 ?? 0;
+                                                                $moistureData = optional(
+                                                                    optional($grpo->quality_created_approved)->chemical_testings
+                                                                )->first(function ($item) {
+                                                                    return stripos($item->parameter, 'moisture') !== false;
+                                                                });
+
+                                                                $moisture = (float) optional($moistureData)->result;
+
+                                                                $avg2 = (float) ($grpo->U_Average2 ?? 0);
                                                                 $totalLabMc += $qty * $moisture;
                                         
-                                                                $mcDeduction = $moisture - $avg2;
-                                                                $deductionPhp = ($mcDeduction / 100) * $price;
+                                                                $mcDeduction = optional($grpo->qualityResult)->moistureResult - ($grpo->U_Average2 ?? 0);
+                                                                $deductionPerLine = ($mcDeduction / 100) * $line->Price;
+                                                                $totalDeductionPhp += $deductionPerLine * $line->Quantity;
                                                             }
+                                                             $avgDeductionPhp = $totalArrivalWt > 0 ? $totalDeductionPhp / $totalArrivalWt : 0;
                                                         }
                                         
                                                         if ($totalArrivalWt) {
+                                                            $avgPrice = $totalWeightedAmount / $totalArrivalWt;
                                                             $delPrice = number_format(
-                                                                ($price - max($deductionPhp, 0)) +
-                                                                (($totalFreightPo + $totalTruckingPo) / $totalArrivalWt), 2
+                                                                ($avgPrice - max($avgDeductionPhp, 0))
+                                                                + (($totalFreightPo + $totalTruckingPo) / max($totalArrivalWt, 1)),
+                                                                2
                                                             );
                                                             $buyingPrice = number_format($totalWeightedAmount / $totalArrivalWt, 2);
                                                             $cottoni = number_format( $totalArrivalWt, 2);
@@ -237,11 +272,11 @@
                                 <table id="table2" class="table table-bordered table-striped table-hover tablewithSearch">
                                     <thead>
                                         <tr>
-                                            <th></th>
-                                            <th>DEL PRICE</th>
-                                            <th>BUYING PRICE</th>
-                                            <th>SPINOSUM</th>
-                                            <th></th>
+                                            <th class="text-center"></th>
+                                            <th class="text-center">DEL PRICE</th>
+                                            <th class="text-center">BUYING PRICE</th>
+                                            <th class="text-center">SPINOSUM</th>
+                                            <th class="text-center"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -274,13 +309,14 @@
                                             }
                                         @endphp
                                         <tr>
-                                            <td>
-                                                {{ $month }}
-                                            </td>
+                                            <td class="text-center">{{ $month }}</td>
                                             <td class="text-center">{{ $avgDelivery }}</td> 
                                             <td class="text-center">{{ $avgBuying }}</td> 
                                             <td class="text-center">{{ $avgCottoni }}</td> 
-                                            <td>{{ $buyingCottoni }}</td>
+                                            <td class="text-center">
+                                                {{ number_format(floatval(str_replace(',', '', $avgBuying)) * floatval(str_replace(',', '', $avgCottoni)), 2) }}
+                                            </td>
+                                            {{-- <td>{{ $buyingCottoni }}</td> --}}
                                         </tr>
                                         @endforeach
                                     </tbody>
@@ -314,7 +350,7 @@
                     <div class="wrapper wrapper-content animated fadeIn">
                         <div class="row">
                             <div style="max-width: 1000px; width: 100%; margin: auto;">
-                                <canvas id="supplierCottoniPie"></canvas>
+                                <canvas style="max-width: 1000px; width: 100%; margin: auto;" id="supplierCottoniPie"></canvas>
                             </div>
                         </div>
                     </div>
@@ -344,7 +380,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-{{-- <script>
+<script>
     const pieLabels = [];
     const pieData = [];
     const areaCottoni = {};
@@ -531,7 +567,7 @@
 
         XLSX.writeFile(wb, 'report.xlsx');
     }
-</script> --}}
+</script>
 
 @endsection
 

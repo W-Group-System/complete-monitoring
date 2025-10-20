@@ -49,6 +49,12 @@ class QualityController extends Controller
         ->paginate(10);
          return view('quality.index', compact('grpos', 'search'));
     }
+    public function salesorder(Request $request)
+    {
+        $model = OPDN::select('DocNum')->get();
+        return response()->json( $model);
+
+    }
     public function returnedQuality(Request $request)
     {
         $search = $request->input('search');
@@ -59,12 +65,20 @@ class QualityController extends Controller
         ->pluck('grpo_no')
         ->toArray();
 
+        $userGrpoNos = Quality::on('mysql')
+        ->where('requested_by', auth()->user()->id)
+        ->where('status', 'Returned')
+        ->pluck('grpo_no')
+        ->toArray();
+
         if ($request->is('returned_quality')) {
             $model = OPDN::query();
         } elseif ($request->is('ccc_returned_quality')) {
             $model = OPDN_CCC::query();
         }
-         $grpos = $model->whereIn('DocNum', $returnedGrpoNos)
+        
+        if (auth()->user()->position === 'Administrator') {
+            $grpos = $model->whereIn('DocNum', $returnedGrpoNos)
             ->when($search, function ($query) use ($search) {
                 $terms = explode(' ', $search);
                 foreach ($terms as $term) {
@@ -77,6 +91,22 @@ class QualityController extends Controller
             })
         ->orderBy('DocDate', 'desc')
         ->paginate(10);
+        } else {
+            $grpos = $model->whereIn('DocNum', $userGrpoNos)
+            ->when($search, function ($query) use ($search) {
+                $terms = explode(' ', $search);
+                foreach ($terms as $term) {
+                    $query->where(function($q) use ($term) {
+                        $q->where('DocNum', 'LIKE', "%{$term}%")
+                            ->orWhere('NumAtCard', 'LIKE', "%{$term}%")
+                            ->orWhere('CardName', 'LIKE', "%{$term}%");
+                    });
+                }
+            })
+        ->orderBy('DocDate', 'desc')
+        ->paginate(10);
+        }
+        
          return view('quality.returned', compact('grpos', 'search'));
     }
     public function approvalQuality(Request $request)
@@ -89,12 +119,19 @@ class QualityController extends Controller
         ->pluck('grpo_no')
         ->toArray();
 
+        $userGrpoNos = Quality::on('mysql')
+        ->where('requested_by', auth()->user()->id)
+        ->where('status', 'Pending')
+        ->pluck('grpo_no')
+        ->toArray();
+
         if ($request->is('for_approval')) {
             $model = OPDN::query();
         } elseif ($request->is('ccc_for_approval')) {
             $model = OPDN_CCC::query();
         }
-         $grpos = $model->whereIn('DocNum', $approvalGrpoNos)
+        if (auth()->user()->position === 'Administrator') {
+            $grpos = $model->whereIn('DocNum', $approvalGrpoNos)
             ->when($search, function ($query) use ($search) {
                 $terms = explode(' ', $search);
                 foreach ($terms as $term) {
@@ -107,7 +144,22 @@ class QualityController extends Controller
             })
         ->orderBy('DocDate', 'desc')
         ->paginate(10);
-         return view('quality.approval', compact('grpos', 'search'));
+        } else {
+            $grpos = $model->whereIn('DocNum', $userGrpoNos)
+            ->when($search, function ($query) use ($search) {
+                $terms = explode(' ', $search);
+                foreach ($terms as $term) {
+                    $query->where(function($q) use ($term) {
+                        $q->where('DocNum', 'LIKE', "%{$term}%")
+                            ->orWhere('NumAtCard', 'LIKE', "%{$term}%")
+                            ->orWhere('CardName', 'LIKE', "%{$term}%");
+                    });
+                }
+            })
+            ->orderBy('DocDate', 'desc')
+            ->paginate(10);
+        }
+        return view('quality.approval', compact('grpos', 'search'));
     }
     public function approvedQuality(Request $request)
     {
@@ -119,13 +171,20 @@ class QualityController extends Controller
         ->pluck('grpo_no')
         ->toArray();
 
+        $userGrpoNos = Quality::on('mysql')
+        ->where('requested_by', auth()->user()->id)
+        ->where('status', 'Approved')
+        ->pluck('grpo_no')
+        ->toArray();
+
         if ($request->is('approved_quality')) {
             $model = OPDN::query();
         } elseif ($request->is('ccc_approved_quality')) {
             $model = OPDN_CCC::query();
         }
 
-         $grpos = $model->whereIn('DocNum', $approvedGrpoNos)
+        if (auth()->user()->position === 'Administrator') {
+             $grpos = $model->whereIn('DocNum', $approvedGrpoNos)
             ->when($search, function ($query) use ($search) {
                 $terms = explode(' ', $search);
                 foreach ($terms as $term) {
@@ -138,6 +197,22 @@ class QualityController extends Controller
             })
         ->orderBy('DocDate', 'desc')
         ->paginate(10);
+        } else{
+             $grpos = $model->whereIn('DocNum', $userGrpoNos)
+            ->when($search, function ($query) use ($search) {
+                $terms = explode(' ', $search);
+                foreach ($terms as $term) {
+                    $query->where(function($q) use ($term) {
+                        $q->where('DocNum', 'LIKE', "%{$term}%")
+                            ->orWhere('NumAtCard', 'LIKE', "%{$term}%")
+                            ->orWhere('CardName', 'LIKE', "%{$term}%");
+                    });
+                }
+            })
+        ->orderBy('DocDate', 'desc')
+        ->paginate(10);
+        }
+        
          return view('quality.approved', compact('grpos', 'search'));
     }
     public function quality_edit(Request $request, $id)
@@ -486,7 +561,7 @@ class QualityController extends Controller
         $dompdf = $pdf->getDomPDF();
 
     
-        return $pdf->stream('Quality Report');
+        return $pdf->stream('Quality Report.pdf');
     }
 
     public function ccc_quality_approval(Request $request)
@@ -680,7 +755,8 @@ class QualityController extends Controller
 
         $foms = Fom::firstOrNew(['quality_id' => $quality->id]);
         $oldValues = $foms->exists ? $foms->getOriginal() : [];
-        $foms->foreign_matter = $request->foms;
+        // $foms->foreign_matter = json_encode($request->foms);
+        $foms->foreign_matter = json_encode($request->foms ?? []);
         $foms->impurities = $request->foms_impurities;
         $foms->weight = $request->foms_weight;
         $foms->percent = $request->foms_percent;
@@ -694,7 +770,7 @@ class QualityController extends Controller
 
         $sands = Sand::firstOrNew(['quality_id' => $quality->id]);
         $oldValues = $sands->exists ? $sands->getOriginal() : [];
-        $sands->foreign_matter = $request->salts;
+        $sands->foreign_matter = json_encode($request->salts ?? []);
         $sands->impurities = $request->salts_impurities;
         $sands->weight = $request->salts_weight;
         $sands->percent = $request->salts_percent;
@@ -707,7 +783,7 @@ class QualityController extends Controller
             $changes[] = "[Sand] {$field} changed from '{$oldValue}' to '{$newValue}'";
         }
 
-        $setups = QualityApproverSetup::orderBy('level')->get();
+        $setups = QualityApproverSetup::where('status', 'Active')->orderBy('level')->get();
 
         foreach ($setups as $setup) {
             $approver = CccQualityApprover::firstOrNew([
