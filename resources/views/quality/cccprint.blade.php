@@ -293,7 +293,7 @@
                 </tr>
                 <tr>
                     <td><span class="label">Ocular MC:</span></td>
-                    <td class="underline">{{ optional($details->quality_created)->ocular_mc }}</td>
+                    <td class="underline">{{ optional($details->quality_created)->ocular_mc }}%</td>
                     <td class="label-right-two"><span class="label">Agreed MC:</span></td>
                     <td class="underline-two">{{ optional($details->quality_created)->agreed_mc }}%</td>
                 </tr>
