@@ -473,8 +473,8 @@
                 </td>
                 <td class="center">{{ optional(optional($details->quality_created)->tie_tie)->impurities}}</td>
                 <td class="center">{{ optional(optional($details->quality_created)->tie_tie)->weight}}</td>
-                <td class="center">{{ number_format(optional(optional($details->quality_created)->tie_tie)->percent)}}</td>
-                <td class="center">{{ number_format(optional(optional($details->quality_created)->tie_tie)->parts_million)}}</td>
+                <td class="center">{{ (optional(optional($details->quality_created)->tie_tie)->percent)}}</td>
+                <td class="center">{{ (optional(optional($details->quality_created)->tie_tie)->parts_million)}}</td>
             </tr>
             <tr>
                 <td>
