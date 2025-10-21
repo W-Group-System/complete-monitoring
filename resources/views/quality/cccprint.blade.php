@@ -496,8 +496,8 @@
                 </td>
                 <td class="center">{{ optional(optional($details->quality_created)->sand)->impurities}}</td>
                 <td class="center">{{ optional(optional($details->quality_created)->sand)->weight}}</td>
-                <td class="center">{{ number_format(optional(optional($details->quality_created)->sand)->percent) }}</td>
-                <td class="center">{{ number_format(optional(optional($details->quality_created)->sand)->parts_million)}}</td>
+                <td class="center">{{ (optional(optional($details->quality_created)->sand)->percent) }}</td>
+                <td class="center">{{ (optional(optional($details->quality_created)->sand)->parts_million)}}</td>
             </tr>
             <tr class="center">
                 <td>
@@ -505,8 +505,8 @@
                 </td>
                 <td class="center"></td>
                 <td class="center"></td>
-                <td class="center">{{ number_format(optional(optional($details->quality_created)->tie_tie)->percent + optional(optional($details->quality_created)->sand)->percent,2)}}</td>
-                <td class="center">{{ number_format(optional(optional($details->quality_created)->tie_tie)->parts_million + optional(optional($details->quality_created)->sand)->parts_million,2)}}</td>
+                <td class="center">{{ (optional(optional($details->quality_created)->tie_tie)->percent + optional(optional($details->quality_created)->sand)->percent)}}</td>
+                <td class="center">{{ number_format(optional(optional($details->quality_created)->tie_tie)->parts_million + optional(optional($details->quality_created)->sand)->parts_million)}}</td>
             </tr>
         </table>
         @php
