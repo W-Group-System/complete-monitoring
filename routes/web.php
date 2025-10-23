@@ -106,7 +106,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::middleware(['can:access ccc quality approval'])->group(function(){
         Route::get('/ccc_quality_approval', 'QualityController@ccc_quality_approval');
         Route::post('/CccDisapproveQuality/{id}', 'QualityController@CccDisapproveQuality');
-        Route::post('/ApproveAllQuality','QualityController@approveAll');
+        Route::post('/CccApproveAllQuality','QualityController@cccApproveAll');
         Route::post('/CccApproveQuality/{id}', 'QualityController@CccApproveQuality');
     });
     Route::middleware(['can:access quality report'])->group(function(){

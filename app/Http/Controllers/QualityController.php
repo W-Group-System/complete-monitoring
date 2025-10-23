@@ -423,6 +423,50 @@ class QualityController extends Controller
 
         return response()->json(['success' => true]);
     }
+    public function cccApproveAll(Request $request)
+    {
+        $ids = $request->ids;
+
+        if (!$ids || !is_array($ids)) {
+            return response()->json(['success' => false, 'message' => 'No IDs provided.']);
+        }
+
+        foreach ($ids as $id) {
+        $quality = Quality::find($id);
+
+        if (!$quality) {
+            continue;
+        }
+
+        $approver = CccQualityApprover::where('quality_id', $id)
+            ->where('user_id', auth()->id())
+            ->where('status', 'Pending')
+            ->first();
+
+        if (!$approver) {
+            continue; 
+        }
+
+        $approver->status = "Approved";
+        $approver->approved_at = now();
+        $approver->remarks = $request->remarks; 
+        $approver->save();
+
+        if ($quality->approvers()->where('status', 'Pending')->count() == 0) {
+            $quality->status = 'Approved';
+            $quality->save();
+        }
+
+        $logs = new AuditLog();
+        $logs->user_id = auth()->id();
+        $logs->action = "Approved Quality Request (Bulk)";
+        $logs->remarks = $request->remarks;
+        $logs->model_id = $quality->id;
+        $logs->save();
+    }
+
+        return response()->json(['success' => true]);
+    }
     // public function quality_edit (Request $request, $id)
     // {
     //     $new_quality = new Quality;

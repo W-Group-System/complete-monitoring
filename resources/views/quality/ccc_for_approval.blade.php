@@ -185,7 +185,7 @@
             confirmButtonText: "Yes, approve all!"
         }).then((result) => {
             if (result.isConfirmed) {
-                fetch("{{ url('ApproveAllQuality') }}", {
+                fetch("{{ url('CccApproveAllQuality') }}", {
                     method: "POST",
                     headers: {
                         "X-CSRF-TOKEN": "{{ csrf_token() }}",
