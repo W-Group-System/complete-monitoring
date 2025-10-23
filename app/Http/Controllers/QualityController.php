@@ -35,6 +35,7 @@ class QualityController extends Controller
             });
         })
         ->whereNotIn('DocNum', $grpoNosWithStatus)
+        ->whereDate('DocDate', '>=', date('2024-11-01'))
         ->when($search, function ($query) use ($search, $request){
             $terms = explode(' ',$search);
             foreach ($terms as $term) {
@@ -536,6 +537,7 @@ class QualityController extends Controller
             });
         })
         ->whereNotIn('DocNum', $grpoNosWithStatus)
+        ->whereDate('DocDate', '>=', date('2024-11-01'))
         ->when($search, function ($query) use ($search, $request){
             $terms = explode(' ',$search);
             foreach ($terms as $term) {
