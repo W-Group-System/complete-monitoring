@@ -356,7 +356,13 @@ class QualityController extends Controller
         $pdfContent = $pdf->output();
         $fileName = 'Quality_Report_' . $approveQuality->dr_rr . '.pdf';
         Mail::to($recipientEmail)
-            ->cc(['jhannice.fababaer@rico.com.ph', 'angelo.genteroy@rico.com.ph', 'adrienne.abligos@rico.com.ph', 'mseaweeds.specialist@rico.com.ph', 'carmona.fsqr@rico.com.ph'])
+            ->cc([
+                'jhannice.fababaer@rico.com.ph', 
+                'angelo.genteroy@rico.com.ph', 
+                'adrienne.abilgos@rico.com.ph', 
+                'seaweeds.specialist@rico.com.ph', 
+                'seaweeds.warehouse@rico.com.ph',
+                'carmona.fsqr@rico.com.ph'])
             ->send(new QualityApprovedMail($approveQuality, $pdfContent, $fileName));
 
         return response()->json(['message' => 'Quality Request Approved.']);
@@ -506,12 +512,12 @@ class QualityController extends Controller
 
                 Mail::to($recipient)
                     ->cc([
-                        'jhannice.fababaer@rico.com.ph',
-                        'angelo.genteroy@rico.com.ph',
-                        'adrienne.abligos@rico.com.ph',
-                        'mseaweeds.specialist@rico.com.ph',
-                        'carmona.fsqr@rico.com.ph'
-                    ])
+                        'jhannice.fababaer@rico.com.ph', 
+                        'angelo.genteroy@rico.com.ph', 
+                        'adrienne.abilgos@rico.com.ph', 
+                        'seaweeds.specialist@rico.com.ph', 
+                        'seaweeds.warehouse@rico.com.ph',
+                        'carmona.fsqr@rico.com.ph'])
                 ->send(new QualityBulkApprovedMail($attachments, $subject));
         }
 
