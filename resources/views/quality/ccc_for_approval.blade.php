@@ -86,6 +86,7 @@
         confirmButtonText: "Approved!"
         }).then((result) => {
             if (result.isConfirmed) {
+                show();
                 $.ajax({
                     type: "POST",
                     url: approveUrl,
@@ -100,6 +101,7 @@
                             showConfirmButton: false,
                             timer: 1500
                         }).then(function() {
+                            document.getElementById("myDiv").style.display = "none";
                             location.reload();
                         });
                     }
@@ -185,6 +187,8 @@
             confirmButtonText: "Yes, approve all!"
         }).then((result) => {
             if (result.isConfirmed) {
+                show();
+
                 fetch("{{ url('CccApproveAllQuality') }}", {
                     method: "POST",
                     headers: {
@@ -195,6 +199,7 @@
                 })
                 .then(response => response.json())
                 .then(data => {
+                    document.getElementById("myDiv").style.display = "none";
                     if(data.success){
                         Swal.fire("Approved!", "All selected records have been approved.", "success")
                             .then(() => location.reload());
@@ -202,7 +207,10 @@
                         Swal.fire("Error", "Something went wrong.", "error");
                     }
                 })
-                .catch(() => Swal.fire("Error", "Something went wrong.", "error"));
+                .catch(() => {
+                    document.getElementById("myDiv").style.display = "none";
+                    Swal.fire("Error", "Something went wrong.", "error");
+                });
             }
         });
     });

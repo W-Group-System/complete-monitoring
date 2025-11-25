@@ -13,6 +13,9 @@ use App\Color;
 use App\QualityApproverSetup;
 use App\Sand;
 use PDF;
+use App\Mail\QualityApprovedMail;
+use App\Mail\QualityBulkApprovedMail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
 
@@ -320,6 +323,42 @@ class QualityController extends Controller
         $approveQuality->status = "Approved";
         $approveQuality->approved_by = auth()->user()->id;
         $approveQuality->save();
+
+        $logs = new AuditLog();
+        $logs->user_id = auth()->id();
+        $logs->action = "Approved Quality Request";
+        $logs->remarks = $request->remarks;
+        $logs->model_id = $approveQuality->id;
+        $logs->save();
+
+        $recipientEmail = 'seaweeds@rico.com.ph'; 
+        $details = OPDN::where('DocNum', $approveQuality->grpo_no)->first();
+        $pdf = PDF::loadView('quality.print', ['details' => $details])
+                ->setPaper('a4', 'portrait');
+
+        $dompdf = $pdf->getDomPDF();
+        $canvas = $dompdf->getCanvas();
+        $canvas->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) {
+            $font = $fontMetrics->getFont('Helvetica', 'normal');
+            $size = 10;
+            $leftX = 40;
+            $y1 = 800;
+
+            $canvas->text($leftX, $y1, 'FR-QCD-10', $font, $size);
+            $canvas->text($leftX, $y1 + 12, 'Rev. 08 06/02/2025', $font, $size);
+
+            $rightX = 460;
+            $canvas->text($rightX, $y1, 'Copy to: SW Purchasing:', $font, $size);
+            $canvas->text($rightX, $y1 + 12, 'Filed by: QCD-SW', $font, $size);
+            $canvas->text($rightX, $y1 + 24, "Page $pageNumber of $pageCount", $font, $size);
+        });
+
+        $pdfContent = $pdf->output();
+        $fileName = 'Quality_Report_' . $approveQuality->dr_rr . '.pdf';
+        Mail::to($recipientEmail)
+            ->cc(['jhannice.fababaer@rico.com.ph', 'angelo.genteroy@rico.com.ph', 'adrienne.abligos@rico.com.ph', 'mseaweeds.specialist@rico.com.ph', 'carmona.fsqr@rico.com.ph'])
+            ->send(new QualityApprovedMail($approveQuality, $pdfContent, $fileName));
+
         return response()->json(['message' => 'Quality Request Approved.']);
     }
     public function DisapproveQuality(Request $request, $id)
@@ -411,14 +450,69 @@ class QualityController extends Controller
         if (!$ids || !is_array($ids)) {
             return response()->json(['success' => false, 'message' => 'No IDs provided.']);
         }
-
+        $attachments = [];
+        $subjectList = [];
         foreach ($ids as $id) {
             $quality = Quality::find($id);
             if ($quality && $quality->status !== 'Approved') {
                 $quality->status = 'Approved';
                 $quality->approved_by = auth()->user()->id;
                 $quality->save();
+                
+                $log = new AuditLog();
+                $log->user_id = auth()->id();
+                $log->action = "Approved Quality Request";
+                $log->remarks = "Bulk Approval";
+                $log->model_id = $quality->id;
+                $log->save();
+
+                $subjectList[] = $quality->dr_rr;
+
+                $details = OPDN::where('DocNum', $quality->grpo_no)->first();
+
+                $pdf = PDF::loadView('quality.print', ['details' => $details])
+                        ->setPaper('a4', 'portrait');
+
+                $dompdf = $pdf->getDomPDF();
+                $canvas = $dompdf->getCanvas();
+
+                $canvas->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) {
+                    $font = $fontMetrics->getFont('Helvetica', 'normal');
+                    $size = 10;
+                    $leftX = 40;
+                    $y1 = 800;
+
+                    $canvas->text($leftX, $y1, 'FR-QCD-10', $font, $size);
+                    $canvas->text($leftX, $y1 + 12, 'Rev. 08 06/02/2025', $font, $size);
+
+                    $rightX = 460;
+                    $canvas->text($rightX, $y1, 'Copy to: SW Purchasing:', $font, $size);
+                    $canvas->text($rightX, $y1 + 12, 'Filed by: QCD-SW', $font, $size);
+                    $canvas->text($rightX, $y1 + 24, "Page $pageNumber of $pageCount", $font, $size);
+                });
+
+                $pdfContent = $pdf->output();
+                $fileName = 'Quality_Report_' . $quality->dr_rr . '.pdf';
+                $attachments[] = [
+                    'content' => $pdfContent,
+                    'name' => $fileName,
+                ];
             }
+        }
+
+        if (!empty($attachments)) {
+                $subject = "Quality Reports Approved: " . implode(', ', $subjectList);
+                $recipient = 'seaweeds@rico.com.ph';
+
+                Mail::to($recipient)
+                    ->cc([
+                        'jhannice.fababaer@rico.com.ph',
+                        'angelo.genteroy@rico.com.ph',
+                        'adrienne.abligos@rico.com.ph',
+                        'mseaweeds.specialist@rico.com.ph',
+                        'carmona.fsqr@rico.com.ph'
+                    ])
+                ->send(new QualityBulkApprovedMail($attachments, $subject));
         }
 
         return response()->json(['success' => true]);
@@ -431,6 +525,8 @@ class QualityController extends Controller
             return response()->json(['success' => false, 'message' => 'No IDs provided.']);
         }
 
+        $attachments = [];
+        $subjectList = [];
         foreach ($ids as $id) {
         $quality = Quality::find($id);
 
@@ -455,6 +551,19 @@ class QualityController extends Controller
         if ($quality->approvers()->where('status', 'Pending')->count() == 0) {
             $quality->status = 'Approved';
             $quality->save();
+
+            $subjectList[] = $quality->dr_rr;
+
+            $details = OPDN_CCC::where('DocNum', $quality->grpo_no)->first();
+
+            $pdf = PDF::loadView('quality.cccprint', ['details' => $details])
+                        ->setPaper('a4', 'portrait');
+            $pdfContent = $pdf->output();
+            $fileName = 'Quality_Report_' . $quality->dr_rr . '.pdf';
+            $attachments[] = [
+                'content' => $pdfContent,
+                'name' => $fileName,
+            ];
         }
 
         $logs = new AuditLog();
@@ -464,6 +573,21 @@ class QualityController extends Controller
         $logs->model_id = $quality->id;
         $logs->save();
     }
+
+        if (!empty($attachments)) {
+                $subject = "Quality Reports Approved: " . implode(', ', $subjectList);
+                $recipient = 'therealharrypotter00@gmail.com';
+
+                Mail::to($recipient)
+                    ->cc([
+                        // 'jhannice.fababaer@rico.com.ph',
+                        // 'angelo.genteroy@rico.com.ph',
+                        // 'adrienne.abligos@rico.com.ph',
+                        // 'mseaweeds.specialist@rico.com.ph',
+                        // 'carmona.fsqr@rico.com.ph'
+                    ])
+                ->send(new QualityBulkApprovedMail($attachments, $subject));
+        }
 
         return response()->json(['success' => true]);
     }
@@ -664,6 +788,26 @@ class QualityController extends Controller
          if ($quality->approvers()->where('status', 'Pending')->count() == 0) {
             $quality->status = 'Approved';
             $quality->save();
+
+            $details = OPDN_CCC::where('DocNum', $quality->grpo_no)->first();
+            $pdf = PDF::loadView('quality.cccprint', ['details' => $details])
+                    ->setPaper('a4', 'portrait');
+
+            $dompdf = $pdf->getDomPDF();
+
+            $pdfContent = $pdf->output();
+            $fileName = 'Quality_Report_' . $quality->dr_rr . '.pdf';
+
+            $recipientEmail = 'seaweeds@rico.com.ph';
+            Mail::to($recipientEmail)
+                ->cc([
+                    'jhannice.fababaer@rico.com.ph',
+                    'angelo.genteroy@rico.com.ph',
+                    'adrienne.abligos@rico.com.ph',
+                    'mseaweeds.specialist@rico.com.ph',
+                    'carmona.fsqr@rico.com.ph'
+                ])
+                ->send(new QualityApprovedMail($quality, $pdfContent, $fileName));
         }
 
         $logs = new AuditLog();
