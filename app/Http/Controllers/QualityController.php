@@ -576,15 +576,15 @@ class QualityController extends Controller
 
         if (!empty($attachments)) {
                 $subject = "Quality Reports Approved: " . implode(', ', $subjectList);
-                $recipient = 'therealharrypotter00@gmail.com';
+                $recipient = 'seaweeds@rico.com.ph';
 
                 Mail::to($recipient)
                     ->cc([
-                        // 'jhannice.fababaer@rico.com.ph',
-                        // 'angelo.genteroy@rico.com.ph',
-                        // 'adrienne.abligos@rico.com.ph',
-                        // 'mseaweeds.specialist@rico.com.ph',
-                        // 'carmona.fsqr@rico.com.ph'
+                        'Domestic@rico.com.ph',
+                        'Michelle.piloton@rico.com.ph',
+                        'ccc.operation@rico.com.ph',
+                        'Fher.ocay@rico.com.ph',
+                        'qc.carmen@rico.com.ph'
                     ])
                 ->send(new QualityBulkApprovedMail($attachments, $subject));
         }
@@ -801,11 +801,11 @@ class QualityController extends Controller
             $recipientEmail = 'seaweeds@rico.com.ph';
             Mail::to($recipientEmail)
                 ->cc([
-                    'jhannice.fababaer@rico.com.ph',
-                    'angelo.genteroy@rico.com.ph',
-                    'adrienne.abligos@rico.com.ph',
-                    'mseaweeds.specialist@rico.com.ph',
-                    'carmona.fsqr@rico.com.ph'
+                    'Domestic@rico.com.ph',
+                    'Michelle.piloton@rico.com.ph',
+                    'ccc.operation@rico.com.ph',
+                    'Fher.ocay@rico.com.ph',
+                    'qc.carmen@rico.com.ph'
                 ])
                 ->send(new QualityApprovedMail($quality, $pdfContent, $fileName));
         }
