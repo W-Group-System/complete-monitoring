@@ -151,7 +151,7 @@
         border-bottom: solid 1px #000;
         width: 70%;
         margin: 5px auto;
-        height: 10px;
+        height: 20px;
     }
     .signature-label {
         font-weight: bold;
@@ -503,13 +503,17 @@
             <div class="signature">
                 <div class="signature-left">
                 <span class="signature-label">Analyzed by:</span>
-                <span class="signature-line"></span>
+                <span class="signature-line">{{ optional(optional($details->quality_created)->requestedBy)->name }}</span>
                 <i>Seaweeds Analyst</i>
             </div>
 
             <div class="signature-right">
                 <span class="signature-label">Verified by:</span>
-                <span class="signature-line"></span>
+                <span class="signature-line">
+                    @if ($details->quality_created->status === "Approved")
+                        {{ optional(optional($details->quality_created)->approvedBy)->name }}
+                    @endif
+                </span>
                 <i>Senior QC Supervisor</i>
             </div>
         </div>

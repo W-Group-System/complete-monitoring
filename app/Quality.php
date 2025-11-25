@@ -52,6 +52,10 @@ class Quality extends Model implements Auditable
     {
         return $this->belongsTo(User::class, 'approved_by', 'id');
     }
+    public function requestedBy()
+    {
+        return $this->belongsTo(User::class, 'requested_by', 'id');
+    }
     public function approvers()
     {
         return $this->hasMany(CccQualityApprover::class);

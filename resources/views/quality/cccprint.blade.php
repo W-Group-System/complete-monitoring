@@ -151,7 +151,7 @@
         border-bottom: solid 1px #000;
         width: 70%;
         margin: 5px auto;
-        height: 10px;
+        height: 20px;
     }
     .signature-label {
         font-weight: bold;
@@ -529,19 +529,35 @@
     <div class="signature">
         <div class="signature-left">
             <span class="signature-label">Analyzed by:</span>
-            <span class="signature-line"></span>
+            <span class="signature-line">{{ optional(optional($details->quality_created)->requestedBy)->name }}</span>
             <i>QC Analyst</i>
         </div>
 
         <div class="signature-right">
             <span class="signature-label">Checked by:</span>
-            <span class="signature-line"></span>
+            <span class="signature-line">
+                @php
+                    $firstApprover = optional($details->quality_created)->approvers->first();
+                @endphp
+
+                @if ($firstApprover && $firstApprover->status === 'Approved')
+                    {{ optional($firstApprover->user)->name }}
+                @endif
+            </span>
             <i>Supervisor</i>
         </div>
 
         <div class="signature-right">
             <span class="signature-label">Approved by:</span>
-            <span class="signature-line"></span>
+            <span class="signature-line">
+                @php
+                    $lastApprover = optional($details->quality_created)->approvers->last();
+                @endphp
+
+                @if ($lastApprover && $lastApprover->status === 'Approved')
+                    {{ optional($lastApprover->user)->name }}
+                @endif
+            </span>
             <i>Plant Manager</i>
         </div>
 
