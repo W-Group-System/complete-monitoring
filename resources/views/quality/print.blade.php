@@ -195,9 +195,9 @@
                 </tr>
                 <tr>
                     <td><span class="label">Supplier:</span></td>
-                    <td class="underline">{{ $details->CardName }}</td>
+                    <td class="underline" style="font-size:10px">{{ $details->CardName }}</td>
                     <td class="label-right"><span class="label">Source:</span></td>
-                    <td class="underline">{{ !empty($details->U_Origin) ? $details->U_Origin : $details->U_Country }}</td>
+                    <td class="underline" style="font-size:10px" >{{ !empty($details->U_Origin) ? $details->U_Origin : $details->U_Country }}</td>
                 </tr>
                 @php           
                     $ArrivalWt = 0;
@@ -504,7 +504,7 @@
                 <div class="signature-left">
                 <span class="signature-label">Analyzed by:</span>
                 <span class="signature-line">{{ optional(optional($details->quality_created)->requestedBy)->name }}</span>
-                <i>Seaweeds Analyst</i>
+                <i>SW Jr Supervisor</i>
             </div>
 
             <div class="signature-right">
@@ -517,7 +517,7 @@
                 <i>Senior QC Supervisor</i>
             </div>
         </div>
-        <div style="position: fixed; bottom: 10px">
+        <div style="position: fixed; left: 150px; bottom: -40px; width:400px; text-align:center">
             <p style="font-size: 10px; color: #555;">
                 <strong>Note:</strong>  
                 This document is system-generated and electronically approved.  
