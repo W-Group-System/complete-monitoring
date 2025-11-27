@@ -586,7 +586,7 @@ class QualityController extends Controller
 
                 Mail::to($recipient)
                     ->cc([
-                        'Domestic@rico.com.ph',
+                        'qca.carmen@rico.com.ph',
                         'Michelle.piloton@rico.com.ph',
                         'ccc.operation@rico.com.ph',
                         'Fher.ocay@rico.com.ph',
@@ -807,7 +807,7 @@ class QualityController extends Controller
             $recipientEmail = 'seaweeds@rico.com.ph';
             Mail::to($recipientEmail)
                 ->cc([
-                    'Domestic@rico.com.ph',
+                    'qca.carmen@rico.com.ph',
                     'Michelle.piloton@rico.com.ph',
                     'ccc.operation@rico.com.ph',
                     'Fher.ocay@rico.com.ph',
