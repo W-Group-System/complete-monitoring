@@ -544,7 +544,7 @@
                     {{ optional($firstApprover->user)->name }}
                 @endif
             </span>
-            <i>Supervisor</i>
+            <i>QC Supervisor</i>
         </div>
 
         <div class="signature-right">
