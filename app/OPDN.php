@@ -77,11 +77,21 @@ class OPDN extends Model
 
      public function freightPoInvoice()
      {
-        return $this->hasMany(OPOR::class, 'DocNum', 'U_freightPO');
+      //   return $this->hasMany(OPOR::class, 'DocNum', 'U_freightPO');
+      if (!is_numeric($this->U_freightPO)) {
+         return $this->hasMany(OPOR::class, 'DocNum', 'DocNum')->whereRaw('1 = 0');
+      }
+
+      return $this->hasMany(OPOR::class, 'DocNum', 'U_freightPO');
      }
      public function truckingPoInvoice()
      {
-        return $this->hasMany(OPOR::class, 'DocNum', 'U_TruckingPO');
+      //   return $this->hasMany(OPOR::class, 'DocNum', 'U_TruckingPO');
+      if (!is_numeric($this->U_TruckingPO)) {
+         return $this->hasMany(OPOR::class, 'DocNum', 'DocNum')->whereRaw('1 = 0');
+      }
+
+      return $this->hasMany(OPOR::class, 'DocNum', 'U_TruckingPO');
      }
      public function truckingPo()
      {
