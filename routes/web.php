@@ -121,6 +121,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/print_quality_report/{id}', 'QualityController@print');
     Route::get('/ccc_print_quality_report/{id}', 'QualityController@cccPrint');
 
+    Route::middleware(['can:access purchase order monitoring'])->group(function(){
+        Route::get('/po_summary_cott', 'PurchaseOrderMonitoringController@cottIndex');
+        Route::get('/po_summary_spi', 'PurchaseOrderMonitoringController@spiIndex');
+        Route::get('/po_summary_cott_graph', 'PurchaseOrderMonitoringController@cottIndexGraph');
+        Route::get('/po_summary_spi_graph', 'PurchaseOrderMonitoringController@spiIndexGraph');
+        
+    });
 
     // Route::get('/home','UserController@index');
 
