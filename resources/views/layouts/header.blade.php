@@ -78,12 +78,12 @@
                                 <li class="{{ Request::is('spi_summary') ? 'active' : '' }}">
                                     <a href="{{ url('/spi_summary') }}">Spinosum Summary And Charts</a>
                                 </li>
-                                <li class="{{ Request::is('summary_suppliers') ? 'active' : '' }}">
+                                {{-- <li class="{{ Request::is('summary_suppliers') ? 'active' : '' }}">
                                     <a href="{{ url('/summary_suppliers') }}">WHI Suppliers Summary Setup</a>
                                 </li>
                                 <li class="{{ Request::is('ccc_summary_suppliers') ? 'active' : '' }}">
                                     <a href="{{ url('/ccc_summary_suppliers') }}">CCC Suppliers Summary Setup</a>
-                                </li>
+                                </li> --}}
                             </ul>
                         </li>
                     @endcan
