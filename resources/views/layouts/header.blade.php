@@ -67,10 +67,10 @@
                     </li>
                     @can('access complete monitoring')
                         <li class="{{ Request::is('home') ? 'active' : '' }}">
-                            <a href="{{ url('/home') }}"><i class="fa fa-th-large"></i> <span class="nav-label">Complete Monitoring</span></a>
+                            <a href="{{ url('/home') }}"><i class="fa fa-th-large"></i> <span class="nav-label">Vendor Monitoring</span></a>
                         </li>
                         <li class="{{ Request::is('cott_summary', 'spi_summary', 'summary_suppliers') ? 'active' : '' }}">
-                            <a href="#"><i class="fa fa-th-large"></i> <span class="nav-label">Summary</span> <span class="fa arrow"></span></a>
+                            <a href="#"><i class="fa fa-list"></i> <span class="nav-label">Summary</span> <span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li class="{{ Request::is('cott_summary') ? 'active' : '' }}">
                                     <a href="{{ url('/cott_summary') }}">Cottonii Summary And Charts</a>
@@ -87,19 +87,40 @@
                             </ul>
                         </li>
                     @endcan
+
+                    @can('access purchase order monitoring')
+                        <li class="{{ Request::is('po_summary_cott', 'po_summary_spi', 'summary_suppliers') ? 'active' : '' }}">
+                            <a href="#"><i class="fa fa-list"></i> <span class="nav-label">Purchase Order Monitoring</span> <span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li class="{{ Request::is('po_summary_cott') ? 'active' : '' }}">
+                                    <a href="{{ url('/po_summary_cott') }}">Summary COTT</a>
+                                </li>
+                                <li class="{{ Request::is('po_summary_spi') ? 'active' : '' }}">
+                                    <a href="{{ url('/po_summary_spi') }}">Summary SPI</a>
+                                </li>
+                                <li class="{{ Request::is('po_summary_cott_graph') ? 'active' : '' }}">
+                                    <a href="{{ url('/po_summary_cott_graph') }}">Chart COTT</a>
+                                </li>
+                                <li class="{{ Request::is('po_summary_spi_graph') ? 'active' : '' }}">
+                                    <a href="{{ url('/po_summary_spi_graph') }}">Chart SPI</a>
+                                </li>
+                            </ul>
+                        </li>
+                    @endcan
+
                     @can('access quality approval')
                         <li class="{{ Request::is('quality_approval') ? 'active' : '' }}">
-                            <a href="{{ url('/quality_approval') }}">Quality Result Approval</a>
+                            <a href="{{ url('/quality_approval') }}"><i class="fa fa-thumbs-up"></i><span class="nav-label">Quality Result Approval</span></a>
                         </li>
                     @endcan
                     @can('access ccc quality approval')
                         <li class="{{ Request::is('ccc_quality_approval') ? 'active' : '' }}">
-                            <a href="{{ url('/ccc_quality_approval') }}">CCC Quality Result Approval</a>
+                            <a href="{{ url('/ccc_quality_approval') }}"><i class="fa fa-thumbs-up"></i><span class="nav-label">CCC Quality Result Approval</span></a>
                         </li>
                     @endcan
                     @can('access quality')
                         <li class="{{ Request::is('quality') ? 'active' : '' }}">
-                            <a href="#"><i class="fa fa-th-large"></i> 
+                            <a href="#"><i class="fa-regular fa-w">W</i>
                                 <span class="nav-label">WHI Quality</span> <span class="fa arrow"></span>
                             </a>
                              <ul class="nav nav-second-level">
@@ -132,7 +153,7 @@
                     @endcan
                     @can('access ccc quality')
                         <li class="{{ Request::is('cccQuality*') ? 'active' : '' }}">
-                            <a href="#"><i class="fa fa-th-large"></i> 
+                            <a href="#"><i class="fa-solid fa-c">C</i>
                                 <span class="nav-label">CCC Quality</span> <span class="fa arrow"></span>
                             </a>
                              <ul class="nav nav-second-level">
@@ -165,12 +186,12 @@
                     @endcan
                     @can('access quality report')
                         <li class="{{ Request::is('qualityReport') ? 'active' : '' }}">
-                        <a href="{{ url('/qualityReport') }}"><i class="fa fa-th-large"></i> <span class="nav-label">Quality Report</span></a>
+                        <a href="{{ url('/qualityReport') }}"><i class="fa fa-sticky-note" aria-hidden="true"></i></i> <span class="nav-label">Quality Report</span></a>
                     </li>
                     @endcan
                     @can('access quality approval setup')
                         <li class="{{ Request::is('quality_approval_setup') ? 'active' : '' }}">
-                        <a href="{{ url('/quality_approval_setup') }}"><i class="fa fa-th-large"></i> <span class="nav-label">Quality Approver Setup</span></a>
+                        <a href="{{ url('/quality_approval_setup') }}"><i class="fa fa-check-circle" aria-hidden="true"></i> <span class="nav-label">Quality Approver Setup</span></a>
                     </li>
                     @endcan
                 </ul>
@@ -216,6 +237,7 @@
     <script src="{{ asset('js/plugins/flot/jquery.flot.spline.js') }}"></script>
     <script src="{{ asset('js/plugins/flot/jquery.flot.resize.js') }}"></script>
     <script src="{{ asset('js/plugins/flot/jquery.flot.pie.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.stack.min.js"></script> 
 
     <!-- Peity -->
     <script src="{{ asset('js/plugins/peity/jquery.peity.min.js') }}"></script>
@@ -331,25 +353,25 @@
 
         $('.chosen-select').chosen({width: "100%"});
 
-        function redirectToSystem1() {
-            // const token = sessionStorage.getItem('api_token');
-            const token = "{{ session('api_token') }}";
-            
-            if (token) {
-                window.location.href = `https://sourcing-plan.wsystem.online/go-to-menu?token=${token}`;
-            } else {
-                window.location.href = `https://sourcing-plan.wsystem.online/login`;
-            }
-        }
         // function redirectToSystem1() {
-        //     const token = sessionStorage.getItem('api_token');
+        //     // const token = sessionStorage.getItem('api_token');
+        //     const token = "{{ session('api_token') }}";
             
         //     if (token) {
-        //         window.location.href = `http://localhost/sourcing_plan/public/go-to-menu`;
+        //         window.location.href = `https://sourcing-plan.wsystem.online/go-to-menu?token=${token}`;
         //     } else {
-        //         window.location.href = `http://localhost/sourcing_plan/public/login`;
+        //         window.location.href = `https://sourcing-plan.wsystem.online/login`;
         //     }
         // }
+        function redirectToSystem1() {
+            const token = sessionStorage.getItem('api_token');
+            
+            if (token) {
+                window.location.href = `http://localhost/sourcing_plan/public/go-to-menu`;
+            } else {
+                window.location.href = `http://localhost/sourcing_plan/public/login`;
+            }
+        }
     </script>
 </body>
 </html>
