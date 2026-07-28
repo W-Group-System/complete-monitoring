@@ -10,7 +10,7 @@
             <div class="ibox">
 
                 <div class="ibox-title">
-                    <h5>Monthly Spinosum Summary</h5>
+                    <h5>Monthly Delivered Summary Per Plant</h5>
                 </div>
 
                 <div class="ibox-content">
@@ -94,7 +94,7 @@
                                 <th>CCC</th>
                                 {{-- <th>PBI</th> --}}
                                 <th>Total Qty</th>
-                                <th>Monthly Delivered Price</th>
+                                <th>Monthly Buying Price</th>
                             </tr>
 
                             </thead>
@@ -289,7 +289,7 @@ foreach($report as $row){
         
 
             {
-                label: "Monthly Delivered Price",
+                label: "Monthly Buying Price",
                 data: @json($priceData),
                 color: "#000000",
                 yaxis: 2,
