@@ -28,23 +28,41 @@ class PurchaseOrderMonitoringController extends Controller
         if ($companyFilter === 'WHI' || $companyFilter === 'All') {
             $posWHI = OPOR::select([
                 'OPOR.DocEntry',
-                'OPOR.DocNum',
+                'OPOR.DocNum as PONo',
                 'OPOR.CardCode',
                 'OPOR.CardName',
                 'OPOR.DocDate',
                 'OPOR.DocTotal',
                 'OPOR.DocCur',
                 'OPOR.NumAtCard',
-                'POR1.Quantity',
                 'POR1.Price',
+                'GRPO.GRPOQty as Quantity',
                 DB::raw("'CAR' as Company"),
             ])
             ->join('POR1', 'OPOR.DocEntry', '=', 'POR1.DocEntry')
+            ->join(DB::raw("
+            (
+                SELECT
+                    PDN1.BaseEntry,
+                    PDN1.BaseLine,
+                    SUM(PDN1.Quantity) AS GRPOQty
+                FROM PDN1
+                INNER JOIN OPDN
+                    ON OPDN.DocEntry = PDN1.DocEntry
+                WHERE PDN1.BaseType = 22
+                AND OPDN.CANCELED = 'N'
+                GROUP BY
+                    PDN1.BaseEntry,
+                    PDN1.BaseLine
+            ) AS GRPO
+            "), function ($join) {
+                $join->on('GRPO.BaseEntry', '=', 'POR1.DocEntry')
+                    ->on('GRPO.BaseLine', '=', 'POR1.LineNum');
+            })
             ->whereBetween('OPOR.DocDate', [$fromDate, $endDate])
             ->when(!empty($supplierFilter), fn($q) => $q->whereIn('OPOR.CardName', $supplierFilter))
             ->where('OPOR.CANCELED',  '=','N')
             ->where('POR1.ItemCode', 'SWDCOTPHIL')
-            ->distinct()
             ->get();
             // ->map(function ($grpo) {
             //     $poNumbers = $grpo->grpoLines->pluck('purchaseOrder.DocNum')->unique()->implode(' / ');
@@ -58,7 +76,7 @@ class PurchaseOrderMonitoringController extends Controller
         if ($companyFilter === 'CCC' || $companyFilter === 'All') {
             $posCCC = OPOR_CCC::select([
                 'OPOR.DocEntry',
-                'OPOR.DocNum',
+                'OPOR.DocNum as PONo',
                 'OPOR.CardCode',
                 'OPOR.CardName',
                 'OPOR.DocDate',
@@ -67,14 +85,33 @@ class PurchaseOrderMonitoringController extends Controller
                 'OPOR.NumAtCard',
                 'POR1.Quantity',
                 'POR1.Price',
+                'GRPO.GRPOQty as Quantity',
                 DB::raw("'CCC' as Company"),
             ])
             ->join('POR1', 'OPOR.DocEntry', '=', 'POR1.DocEntry')
+            ->join(DB::raw("
+            (
+                SELECT
+                    PDN1.BaseEntry,
+                    PDN1.BaseLine,
+                    SUM(PDN1.Quantity) AS GRPOQty
+                FROM PDN1
+                INNER JOIN OPDN
+                    ON OPDN.DocEntry = PDN1.DocEntry
+                WHERE PDN1.BaseType = 22
+                AND OPDN.CANCELED = 'N'
+                GROUP BY
+                    PDN1.BaseEntry,
+                    PDN1.BaseLine
+            ) AS GRPO
+            "), function ($join) {
+                $join->on('GRPO.BaseEntry', '=', 'POR1.DocEntry')
+                    ->on('GRPO.BaseLine', '=', 'POR1.LineNum');
+            })
             ->whereBetween('OPOR.DocDate', [$fromDate, $endDate])
             ->when(!empty($supplierFilter), fn($q) => $q->whereIn('OPOR.CardName', $supplierFilter))
             ->where('OPOR.CANCELED', '=', 'N')
             ->where('POR1.ItemCode', 'Seaweeds-COTTONII')
-            ->distinct()
             ->get();
             // ->map(function ($grpo) {
             //     $grpo->Combined_po_numbers = $grpo->grpoLines->pluck('purchaseOrder.DocNum')->unique()->implode(' / ');
