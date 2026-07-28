@@ -140,7 +140,7 @@ class PurchaseOrderMonitoringController extends Controller
         if ($companyFilter === 'WHI' || $companyFilter === 'All') {
             $posWHI = OPOR::select([
                 'OPOR.DocEntry',
-                'OPOR.DocNum',
+                'OPOR.DocNum as PONo',
                 'OPOR.CardCode',
                 'OPOR.CardName',
                 'OPOR.DocDate',
@@ -149,9 +149,29 @@ class PurchaseOrderMonitoringController extends Controller
                 'OPOR.NumAtCard',
                 'POR1.Quantity',
                 'POR1.Price',
+                'GRPO.GRPOQty as Quantity',
                 DB::raw("'CAR' as Company"),
             ])
             ->join('POR1', 'OPOR.DocEntry', '=', 'POR1.DocEntry')
+            ->join(DB::raw("
+            (
+                SELECT
+                    PDN1.BaseEntry,
+                    PDN1.BaseLine,
+                    SUM(PDN1.Quantity) AS GRPOQty
+                FROM PDN1
+                INNER JOIN OPDN
+                    ON OPDN.DocEntry = PDN1.DocEntry
+                WHERE PDN1.BaseType = 22
+                AND OPDN.CANCELED = 'N'
+                GROUP BY
+                    PDN1.BaseEntry,
+                    PDN1.BaseLine
+            ) AS GRPO
+            "), function ($join) {
+                $join->on('GRPO.BaseEntry', '=', 'POR1.DocEntry')
+                    ->on('GRPO.BaseLine', '=', 'POR1.LineNum');
+            })
             ->whereBetween('OPOR.DocDate', [$fromDate, $endDate])
             ->when(!empty($supplierFilter), fn($q) => $q->whereIn('OPOR.CardName', $supplierFilter))
             ->where('OPOR.CANCELED',  '=','N')
@@ -170,7 +190,7 @@ class PurchaseOrderMonitoringController extends Controller
         if ($companyFilter === 'CCC' || $companyFilter === 'All') {
             $posCCC = OPOR_CCC::select([
                 'OPOR.DocEntry',
-                'OPOR.DocNum',
+                'OPOR.DocNum as PONo',
                 'OPOR.CardCode',
                 'OPOR.CardName',
                 'OPOR.DocDate',
@@ -179,9 +199,29 @@ class PurchaseOrderMonitoringController extends Controller
                 'OPOR.NumAtCard',
                 'POR1.Quantity',
                 'POR1.Price',
+                'GRPO.GRPOQty as Quantity',
                 DB::raw("'CCC' as Company"),
             ])
             ->join('POR1', 'OPOR.DocEntry', '=', 'POR1.DocEntry')
+            ->join(DB::raw("
+            (
+                SELECT
+                    PDN1.BaseEntry,
+                    PDN1.BaseLine,
+                    SUM(PDN1.Quantity) AS GRPOQty
+                FROM PDN1
+                INNER JOIN OPDN
+                    ON OPDN.DocEntry = PDN1.DocEntry
+                WHERE PDN1.BaseType = 22
+                AND OPDN.CANCELED = 'N'
+                GROUP BY
+                    PDN1.BaseEntry,
+                    PDN1.BaseLine
+            ) AS GRPO
+            "), function ($join) {
+                $join->on('GRPO.BaseEntry', '=', 'POR1.DocEntry')
+                    ->on('GRPO.BaseLine', '=', 'POR1.LineNum');
+            })
             ->whereBetween('OPOR.DocDate', [$fromDate, $endDate])
             ->when(!empty($supplierFilter), fn($q) => $q->whereIn('OPOR.CardName', $supplierFilter))
             ->where('OPOR.CANCELED', '=', 'N')
@@ -213,13 +253,32 @@ class PurchaseOrderMonitoringController extends Controller
         if ($companyFilter == 'WHI' || $companyFilter == 'All') {
 
             $car = OPOR::join('POR1','OPOR.DocEntry','=','POR1.DocEntry')
+                ->join(DB::raw("
+                (
+                    SELECT
+                        PDN1.BaseEntry,
+                        PDN1.BaseLine,
+                        SUM(PDN1.Quantity) AS GRPOQty
+                    FROM PDN1
+                    INNER JOIN OPDN
+                        ON OPDN.DocEntry = PDN1.DocEntry
+                    WHERE PDN1.BaseType = 22
+                    AND OPDN.CANCELED = 'N'
+                    GROUP BY
+                        PDN1.BaseEntry,
+                        PDN1.BaseLine
+                ) AS GRPO
+                "), function ($join) {
+                    $join->on('GRPO.BaseEntry', '=', 'POR1.DocEntry')
+                        ->on('GRPO.BaseLine', '=', 'POR1.LineNum');
+                })
                 ->selectRaw("
                     YEAR(OPOR.DocDate) YearNo,
                     MONTH(OPOR.DocDate) MonthNo,
                     DATENAME(MONTH,OPOR.DocDate) MonthName,
                     'CAR' Company,
-                    SUM(POR1.Quantity) Quantity,
-                    SUM(POR1.Quantity * POR1.Price) Amount
+                    SUM(GRPO.GRPOQty) Quantity,
+                    SUM(GRPO.GRPOQty * POR1.Price) Amount
                 ")
                 ->whereBetween('OPOR.DocDate',[$fromDate,$toDate])
                 ->where('POR1.ItemCode','SWDCOTPHIL')
@@ -241,13 +300,32 @@ class PurchaseOrderMonitoringController extends Controller
         if ($companyFilter == 'CCC' || $companyFilter == 'All') {
 
             $ccc = OPOR_CCC::join('POR1','OPOR.DocEntry','=','POR1.DocEntry')
+                ->join(DB::raw("
+                (
+                    SELECT
+                        PDN1.BaseEntry,
+                        PDN1.BaseLine,
+                        SUM(PDN1.Quantity) AS GRPOQty
+                    FROM PDN1
+                    INNER JOIN OPDN
+                        ON OPDN.DocEntry = PDN1.DocEntry
+                    WHERE PDN1.BaseType = 22
+                    AND OPDN.CANCELED = 'N'
+                    GROUP BY
+                        PDN1.BaseEntry,
+                        PDN1.BaseLine
+                ) AS GRPO
+                "), function ($join) {
+                    $join->on('GRPO.BaseEntry', '=', 'POR1.DocEntry')
+                        ->on('GRPO.BaseLine', '=', 'POR1.LineNum');
+                })
                 ->selectRaw("
                     YEAR(OPOR.DocDate) YearNo,
                     MONTH(OPOR.DocDate) MonthNo,
                     DATENAME(MONTH,OPOR.DocDate) MonthName,
                     'CCC' Company,
-                    SUM(POR1.Quantity) Quantity,
-                    SUM(POR1.Quantity * POR1.Price) Amount
+                    SUM(GRPO.GRPOQty) Quantity,
+                    SUM(GRPO.GRPOQty * POR1.Price) Amount
                 ")
                 ->whereBetween('OPOR.DocDate',[$fromDate,$toDate])
                 ->where('POR1.ItemCode','Seaweeds-COTTONII')
@@ -320,13 +398,32 @@ class PurchaseOrderMonitoringController extends Controller
         if ($companyFilter == 'WHI' || $companyFilter == 'All') {
 
             $car = OPOR::join('POR1','OPOR.DocEntry','=','POR1.DocEntry')
+                ->join(DB::raw("
+                (
+                    SELECT
+                        PDN1.BaseEntry,
+                        PDN1.BaseLine,
+                        SUM(PDN1.Quantity) AS GRPOQty
+                    FROM PDN1
+                    INNER JOIN OPDN
+                        ON OPDN.DocEntry = PDN1.DocEntry
+                    WHERE PDN1.BaseType = 22
+                    AND OPDN.CANCELED = 'N'
+                    GROUP BY
+                        PDN1.BaseEntry,
+                        PDN1.BaseLine
+                ) AS GRPO
+                "), function ($join) {
+                    $join->on('GRPO.BaseEntry', '=', 'POR1.DocEntry')
+                        ->on('GRPO.BaseLine', '=', 'POR1.LineNum');
+                })
                 ->selectRaw("
                     YEAR(OPOR.DocDate) YearNo,
                     MONTH(OPOR.DocDate) MonthNo,
                     DATENAME(MONTH,OPOR.DocDate) MonthName,
                     'CAR' Company,
-                    SUM(POR1.Quantity) Quantity,
-                    SUM(POR1.Quantity * POR1.Price) Amount
+                    SUM(GRPO.GRPOQty) Quantity,
+                    SUM(GRPO.GRPOQty * POR1.Price) Amount
                 ")
                 ->whereBetween('OPOR.DocDate',[$fromDate,$toDate])
                 ->where('POR1.ItemCode','SWDSPIPHIL')
@@ -348,13 +445,32 @@ class PurchaseOrderMonitoringController extends Controller
         if ($companyFilter == 'CCC' || $companyFilter == 'All') {
 
             $ccc = OPOR_CCC::join('POR1','OPOR.DocEntry','=','POR1.DocEntry')
+                ->join(DB::raw("
+                (
+                    SELECT
+                        PDN1.BaseEntry,
+                        PDN1.BaseLine,
+                        SUM(PDN1.Quantity) AS GRPOQty
+                    FROM PDN1
+                    INNER JOIN OPDN
+                        ON OPDN.DocEntry = PDN1.DocEntry
+                    WHERE PDN1.BaseType = 22
+                    AND OPDN.CANCELED = 'N'
+                    GROUP BY
+                        PDN1.BaseEntry,
+                        PDN1.BaseLine
+                ) AS GRPO
+                "), function ($join) {
+                    $join->on('GRPO.BaseEntry', '=', 'POR1.DocEntry')
+                        ->on('GRPO.BaseLine', '=', 'POR1.LineNum');
+                })
                 ->selectRaw("
                     YEAR(OPOR.DocDate) YearNo,
                     MONTH(OPOR.DocDate) MonthNo,
                     DATENAME(MONTH,OPOR.DocDate) MonthName,
                     'CCC' Company,
-                    SUM(POR1.Quantity) Quantity,
-                    SUM(POR1.Quantity * POR1.Price) Amount
+                    SUM(GRPO.GRPOQty) Quantity,
+                    SUM(GRPO.GRPOQty * POR1.Price) Amount
                 ")
                 ->whereBetween('OPOR.DocDate',[$fromDate,$toDate])
                 ->where('POR1.ItemCode','Seaweeds - SPINOSUM')
