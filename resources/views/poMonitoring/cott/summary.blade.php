@@ -84,7 +84,7 @@
                                             $totalAmount += $po->Quantity * $po->Price;
                                         @endphp
                                             <tr>
-                                                <td>{{ $po->DocNum }}</td>
+                                                <td>{{ $po->PONo }}</td>
                                                 <td>{{ $po->NumAtCard }}</td>
                                                 <td>{{ date('Y-m-d', strtotime($po->DocDate)) }}</td>
                                                 <td>{{ $po->CardName }}</td> 
