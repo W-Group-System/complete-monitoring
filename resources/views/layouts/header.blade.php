@@ -108,20 +108,6 @@
                         </li>
                     @endcan
 
-                    @can('access complete monitoring')
-                        <li class="{{ Request::is('ccc_summary_suppliers', 'summary_suppliers') ? 'active' : '' }}">
-                            <a href="#"><i class="fa fa-gear"></i> <span class="nav-label">Settings</span> <span class="fa arrow"></span></a>
-                            <ul class="nav nav-second-level">
-                                <li class="{{ Request::is('summary_suppliers') ? 'active' : '' }}">
-                                    <a href="{{ url('/summary_suppliers') }}">WHI Suppliers Summary Setup</a>
-                                </li>
-                                <li class="{{ Request::is('ccc_summary_suppliers') ? 'active' : '' }}">
-                                    <a href="{{ url('/ccc_summary_suppliers') }}">CCC Suppliers Summary Setup</a>
-                                </li>
-                            </ul>
-                        </li>
-                    @endcan
-
                     @can('access quality approval')
                         <li class="{{ Request::is('quality_approval') ? 'active' : '' }}">
                             <a href="{{ url('/quality_approval') }}"><i class="fa fa-thumbs-up"></i><span class="nav-label">Quality Result Approval</span></a>
@@ -207,6 +193,20 @@
                         <li class="{{ Request::is('quality_approval_setup') ? 'active' : '' }}">
                         <a href="{{ url('/quality_approval_setup') }}"><i class="fa fa-check-circle" aria-hidden="true"></i> <span class="nav-label">Quality Approver Setup</span></a>
                     </li>
+                    @endcan
+
+                    @can('access complete monitoring')
+                        <li class="{{ Request::is('ccc_summary_suppliers', 'summary_suppliers') ? 'active' : '' }}">
+                            <a href="#"><i class="fa fa-gear"></i> <span class="nav-label">Settings</span> <span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li class="{{ Request::is('summary_suppliers') ? 'active' : '' }}">
+                                    <a href="{{ url('/summary_suppliers') }}">WHI Suppliers Summary Setup</a>
+                                </li>
+                                <li class="{{ Request::is('ccc_summary_suppliers') ? 'active' : '' }}">
+                                    <a href="{{ url('/ccc_summary_suppliers') }}">CCC Suppliers Summary Setup</a>
+                                </li>
+                            </ul>
+                        </li>
                     @endcan
                 </ul>
             </div>
