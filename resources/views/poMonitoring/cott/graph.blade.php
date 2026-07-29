@@ -77,7 +77,7 @@
             <div class="ibox">
 
                 <div class="ibox-title">
-                    <h5>Monthly Summary</h5>
+                    <h5>Monthly Delivered Summary Per Plant</h5>
                 </div>
 
                 <div class="ibox-content">
@@ -183,7 +183,7 @@
             <div class="ibox">
 
                 <div class="ibox-title">
-                    <h5>Monthly Summary</h5>
+                    <h5>Monthly Delivered Summary Per Plant</h5>
                 </div>
 
                 <div class="ibox-content">

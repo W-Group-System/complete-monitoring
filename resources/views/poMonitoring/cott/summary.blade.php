@@ -135,7 +135,7 @@
                                         <tr>
                                             <th>Company</th>
                                             <th>Quantity</th>
-                                            <th>Average Price</th>
+                                            <th>Weight Buying Price</th>
                                             <th>Total Amount</th>
                                         </tr>
                                     </thead>
