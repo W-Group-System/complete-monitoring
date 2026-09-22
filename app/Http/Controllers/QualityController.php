@@ -299,6 +299,7 @@ class QualityController extends Controller
 
         $pendingGrpoNos = Quality::on('mysql')
         ->where('status', 'Pending')
+        ->where('company', 'WHI')
         ->pluck('grpo_no')
         ->toArray();
 
